@@ -4,8 +4,6 @@
 package org.example;
 
 import org.junit.jupiter.api.Test;
-import org.notleksa.App;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 class AppTest {
