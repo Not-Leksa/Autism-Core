@@ -56,6 +56,7 @@ public final class AutismCore extends JavaPlugin implements Listener {
         this.getCommand("invsee").setExecutor(new InvseeCommand(this));
         this.getCommand("timer").setExecutor(new TimerCommand(this));
         this.getCommand("revive").setExecutor(new ReviveCommand(this));
+        this.getCommand("list").setExecutor(new ListCommand(this));
     }
 
     // shit for tracking alive and dead people and stuff
