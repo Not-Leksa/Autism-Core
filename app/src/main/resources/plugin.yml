@@ -4,3 +4,9 @@ version: 1.0.0
 api-version: 1.21
 description: autism core real
 author: NotLeksa
+
+commands:
+  core:
+    description: Gives info about AutismCore
+    usage: /core
+    aliases: [autism, autismcore]
