@@ -7,18 +7,27 @@ import java.util.UUID;
 
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.notleksa.autismcore.commands.CoreCommand;
+import org.notleksa.autismcore.commands.HideCommand;
+import org.notleksa.autismcore.commands.InvseeCommand;
+import org.notleksa.autismcore.commands.ListCommand;
+import org.notleksa.autismcore.commands.MuteChatCommand;
+import org.notleksa.autismcore.commands.RevTokenCommands;
+import org.notleksa.autismcore.commands.ReviveCommand;
+import org.notleksa.autismcore.commands.SetSpawnCommand;
+import org.notleksa.autismcore.commands.SpawnCommand;
+import org.notleksa.autismcore.commands.TimerCommand;
+import org.notleksa.autismcore.handlers.ReviveHandler;
+import org.notleksa.autismcore.listeners.MuteChatListener;
+
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
-
-import org.notleksa.autismcore.commands.*;
-import org.notleksa.autismcore.handlers.*;
-import org.notleksa.autismcore.listeners.*;
 
 public final class AutismCore extends JavaPlugin implements Listener {
 
     // core info shit
     public static final String CORE_ICON = "☘";
-    public static final String VERSION = "0.0.2";
+    public static final String VERSION = "0.1.1";
     public static final String DISCORD_LINK = "https://discord.gg/GrSeG3jR";
 
     // command variables
