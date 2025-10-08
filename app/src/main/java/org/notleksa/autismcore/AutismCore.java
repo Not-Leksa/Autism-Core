@@ -46,5 +46,7 @@ public final class AutismCore extends JavaPlugin implements Listener {
         this.getCommand("mutechat").setExecutor(new MuteChatCommand(this));
         this.getCommand("spawn").setExecutor(new SpawnCommand(this));
         this.getCommand("setspawn").setExecutor(new SetSpawnCommand(this));
+        this.getCommand("invsee").setExecutor(new InvseeCommand(this));
+        this.getCommand("timer").setExecutor(new TimerCommand(this));
     }
 }

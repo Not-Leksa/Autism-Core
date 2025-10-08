@@ -9,13 +9,11 @@ import org.bukkit.entity.Player;
 
 public class HideCommand implements CommandExecutor {
 
-     private final AutismCore plugin;
+    private final AutismCore plugin;
 
     public HideCommand(AutismCore plugin) {
         this.plugin = plugin;
     }
-
-    // TODO: ask sushi to fix this fuckass code lmao
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -34,42 +32,34 @@ public class HideCommand implements CommandExecutor {
         switch (type) {
             case "all" -> {
                 for (Player other : Bukkit.getOnlinePlayers()) {
-                    if (other.equals(player)) continue;
-                    if (player.canSee(other)) {
+                    if (!other.equals(player)) {
                         player.hidePlayer(plugin, other);
                     }
                 }
             }
             case "staff" -> {
                 for (Player other : Bukkit.getOnlinePlayers()) {
-                    if (other.equals(player)) continue;
-                    if (other.hasPermission("autismcore.staff")) {
-                        if (player.canSee(other)) {
-                            player.hidePlayer(plugin, other);
-                        }
+                    if (!other.equals(player) && other.hasPermission("autismcore.staff")) {
+                        player.hidePlayer(plugin, other);
                     }
                 }
             }
             case "host" -> {
                 for (Player other : Bukkit.getOnlinePlayers()) {
-                    if (other.equals(player)) continue;
-                    if (other.hasPermission("autismcore.host")) {
-                        if (player.canSee(other)) {
-                            player.hidePlayer(plugin, other);
-                        }
+                    if (!other.equals(player) && other.hasPermission("autismcore.host")) {
+                        player.hidePlayer(plugin, other);
                     }
                 }
             }
             case "off" -> {
                 for (Player other : Bukkit.getOnlinePlayers()) {
-                    if (other.equals(player)) continue;
-                    if (player.canSee(other)) {
+                    if (!other.equals(player)) {
                         player.showPlayer(plugin, other);
                     }
                 }
             }
 
-            default -> player.sendMessage("idiot thats not an option. Usage: /hide <all|staff|host|off>");
+            default -> player.sendMessage("idiot thats not a fucking option. Usage: /hide <all|staff|host|off>");
         }
 
         return true;

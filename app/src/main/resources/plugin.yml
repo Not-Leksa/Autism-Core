@@ -31,7 +31,7 @@ commands:
     permission: autismcore.timer
   invsee:
     description: Starts a timer
-    usage: /timer <time|cancel> <minutes|seconds>
+    usage: /invsee <player>
     permission: autismcore.invsee
 
 permissions:
