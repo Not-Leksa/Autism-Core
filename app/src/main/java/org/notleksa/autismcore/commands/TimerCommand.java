@@ -22,66 +22,69 @@ public class TimerCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+
         if (args.length != 2) {
-            sender.sendMessage("Usage: /timer <amount> <second|minute>");
+            sender.sendMessage(Component.text("Usage: /timer <time> <second|minute>", NamedTextColor.RED));
             return true;
         }
 
-        int amount;
+        int duration;
         try {
-            amount = Integer.parseInt(args[0]);
-            if (amount <= 0) throw new NumberFormatException();
+            duration = Integer.parseInt(args[0]);
+            if (duration <= 0) {
+                sender.sendMessage(Component.text("Enter a number thats greater than 0 faggot", NamedTextColor.RED));
+                return true;
+            }
         } catch (NumberFormatException e) {
-            sender.sendMessage("Invalid number: " + args[0]);
+            sender.sendMessage(Component.text("His ass is NOT a fucking dumber", NamedTextColor.RED));
             return true;
         }
 
         String unit = args[1].toLowerCase();
-        int totalSeconds;
-
-        switch (unit) {
-            case "second", "seconds" -> totalSeconds = amount;
-            case "minute", "minutes" -> totalSeconds = amount * 60;
+        int totalSeconds = switch (unit) {
+            case "second", "seconds" -> duration;
+            case "minute", "minutes" -> duration * 60;
             default -> {
-                sender.sendMessage("Invalid unit: use 'second' or 'minute'");
-                return true;
+                sender.sendMessage(Component.text("thats not a good time unit, use like 'minute' or 'second' or smth", NamedTextColor.RED));
+                yield -1;
             }
-        }
+        };
 
-        sender.sendMessage("Timer started for " + amount + " " + unit + "!");
+        if (totalSeconds == -1) return true;
+
+        sender.sendMessage(Component.text("Timer set for" + duration + " " + unit + ".", NamedTextColor.GREEN));
 
         new BukkitRunnable() {
-            int remaining = totalSeconds;
+            int timeLeft = totalSeconds;
 
             @Override
             public void run() {
-                if (remaining <= 0) {
-                    Component finished = Component.text("Timer finished!", NamedTextColor.GREEN);
+                if (timeLeft <= 0) {
+                    var complete = Component.text("times up !!! fr", NamedTextColor.GOLD);
                     for (Player player : Bukkit.getOnlinePlayers()) {
-                        player.sendMessage(finished);
+                        player.sendMessage(complete);
                         player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1f, 1f);
                     }
                     cancel();
                     return;
                 }
 
-                // Notify at every minute and also last 10 seconds
-                if (remaining % 60 == 0 || remaining <= 10) {
-                    int minutes = remaining / 60;
-                    int seconds = remaining % 60;
-            
-                    String timeString = (minutes > 0 ? minutes + "m " : "") + (seconds > 0 ? seconds + "s" : "");
+                // Update every minute and for the last 10 seconds
+                if (timeLeft % 60 == 0 || timeLeft <= 10) {
+                    int mins = timeLeft / 60;
+                    int secs = timeLeft % 60;
+                    String formatted = (mins > 0 ? mins + "m " : "") + (secs > 0 ? secs + "s" : "");
+                    var update = Component.text("⏳ " + formatted + " remaining", NamedTextColor.YELLOW);
 
-                    Component message = Component.text("Timer: " + timeString + " remaining!", NamedTextColor.YELLOW);
                     for (Player player : Bukkit.getOnlinePlayers()) {
-                        player.sendMessage(message);
+                        player.sendMessage(update);
                         player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BELL, 1f, 1f);
                     }
                 }
 
-                remaining--;
+                timeLeft--;
             }
-        }.runTaskTimer(plugin, 0L, 20L); // Runs every second
+        }.runTaskTimer(plugin, 0L, 20L);
 
         return true;
     }

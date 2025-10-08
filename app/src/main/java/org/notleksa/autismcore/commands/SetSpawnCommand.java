@@ -22,21 +22,21 @@ public class SetSpawnCommand implements CommandExecutor {
             return true;
         }
 
-        if (player.hasPermission("autismcore.setspawn")) {
-            Location loc = player.getLocation();
-            plugin.getConfig().set("spawn.world", loc.getWorld().getName());
-            plugin.getConfig().set("spawn.x", loc.getX());
-            plugin.getConfig().set("spawn.y", loc.getY());
-            plugin.getConfig().set("spawn.z", loc.getZ());
-            plugin.getConfig().set("spawn.yaw", loc.getYaw());
-            plugin.getConfig().set("spawn.pitch", loc.getPitch());
-            plugin.saveConfig();
-
-            return true;
-        } 
-        else {
-            player.sendMessage("You don't have permission to set the spawn dumbass");
+        if (!player.hasPermission("autismcore.setspawn")) {
+            player.sendMessage("You don't have permission to set the spawn, dumbass.");
             return true;
         }
+
+        Location loc = player.getLocation();
+        plugin.getConfig().set("spawn.world", loc.getWorld().getName());
+        plugin.getConfig().set("spawn.x", loc.getX());
+        plugin.getConfig().set("spawn.y", loc.getY());
+        plugin.getConfig().set("spawn.z", loc.getZ());
+        plugin.getConfig().set("spawn.yaw", loc.getYaw());
+        plugin.getConfig().set("spawn.pitch", loc.getPitch());
+        plugin.saveConfig();
+
+        player.sendMessage("Spawn location set successfully.");
+        return true;
     }
 }

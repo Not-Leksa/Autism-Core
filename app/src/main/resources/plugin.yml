@@ -28,6 +28,11 @@ commands:
   timer:
     description: Starts a timer
     usage: /timer <time|cancel> <minutes|seconds>
+    permission: autismcore.timer
+  invsee:
+    description: Starts a timer
+    usage: /timer <time|cancel> <minutes|seconds>
+    permission: autismcore.invsee
 
 permissions:
   autismcore.chatbypass:
@@ -47,4 +52,7 @@ permissions:
     default: op
   autismcore.invsee:
     description: Allows the user to use /invsee
+    default: op
+    autismcore.timer:
+    description: Allows the user to use /timer
     default: op

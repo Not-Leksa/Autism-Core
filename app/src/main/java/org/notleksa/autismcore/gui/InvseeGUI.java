@@ -1,8 +1,5 @@
-// this shit is lowkey stolen from qwertzcore LMAO
-
 package org.notleksa.autismcore.gui;
 
-import org.notleksa.autismcore.AutismCore;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -11,117 +8,120 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
-import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerAttemptPickupItemEvent;
+import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitTask;
+import org.notleksa.autismcore.AutismCore;
+
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextDecoration;
 
 public class InvseeGUI implements Listener {
+
     private final AutismCore plugin;
     private final Player viewer;
     private final Player target;
-    private final Inventory gui;
-    private BukkitTask updateTask;
+    private final Inventory inventoryView;
+    private BukkitTask refreshTask;
 
     public InvseeGUI(AutismCore plugin, Player viewer, Player target) {
         this.plugin = plugin;
         this.viewer = viewer;
         this.target = target;
-        this.gui = Bukkit.createInventory(
-            null,
-            54,   // size
-            Component.text(AutismCore.CORE_ICON + " ")
-                .append(Component.text(target.getName() + "'s Inventory", NamedTextColor.LIGHT_PURPLE))
+
+        this.inventoryView = Bukkit.createInventory(
+                null,
+                54,
+                Component.text(AutismCore.CORE_ICON + " ")
+                        .append(Component.text(target.getName() + "'s Inventory", NamedTextColor.LIGHT_PURPLE))
         );
 
-        plugin.getServer().getPluginManager().registerEvents(this, plugin);
+        Bukkit.getPluginManager().registerEvents(this, plugin);
     }
 
+    // opens inventory view
     public void open() {
-        updateGUI();
-        viewer.openInventory(gui);
-        startUpdateTask();
+        refreshContents();
+        viewer.openInventory(inventoryView);
+        beginAutoRefresh();
     }
 
-    private void updateGUI() {
-        // Set black glass panes
-        ItemStack blackPane = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
-        for (int i = 9; i < 18; i++) {
-            gui.setItem(i, blackPane);
-        }
-        for (int i = 1; i < 5; i++) {
-            gui.setItem(i, blackPane);
-        }
-        // Set inventory contents
+    // updates it every tick
+    private void beginAutoRefresh() {
+        refreshTask = Bukkit.getScheduler().runTaskTimer(plugin, this::refreshContents, 1L, 1L);
+    }
+
+    // updates its items every tick
+    private void refreshContents() {
+        ItemStack filler = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
+
+        // border panes
+        for (int i = 9; i < 18; i++) inventoryView.setItem(i, filler);
+        for (int i = 1; i < 5; i++) inventoryView.setItem(i, filler);
+
+        // main inventory (slots 9–44)
         for (int i = 0; i < 36; i++) {
-            gui.setItem(i + 18, target.getInventory().getItem(i+9));
+            inventoryView.setItem(i + 18, target.getInventory().getItem(i + 9));
         }
 
-        // Set hotbar
+        // hotbar (slots 0–8)
         for (int i = 0; i < 9; i++) {
-            gui.setItem(i + 45, target.getInventory().getItem(i));
+            inventoryView.setItem(i + 45, target.getInventory().getItem(i));
         }
 
-        // Set offhand
-        gui.setItem(0, target.getInventory().getItemInOffHand());
+        // offhand
+        inventoryView.setItem(0, target.getInventory().getItemInOffHand());
 
-        // Set armor
+        // armor pieces
         ItemStack[] armor = target.getInventory().getArmorContents();
-        for (int i = 0; i < 4; i++) {
-            gui.setItem(i + 5, armor[i]);
+        for (int i = 0; i < armor.length; i++) {
+            inventoryView.setItem(i + 5, armor[i]);
         }
     }
 
-    private void startUpdateTask() {
-        updateTask = Bukkit.getScheduler().runTaskTimer(plugin, this::updateGUI, 1L, 1L);
-    }
-
     @EventHandler
-    public void onInventoryClick(InventoryClickEvent event) {
-        if (event.getInventory() != gui) return;
+    public void handleClick(InventoryClickEvent event) {
+        if (event.getInventory() != inventoryView) return;
 
-        if (event.getRawSlot() >= 0 && event.getRawSlot() < 54) {
-            if ((event.getRawSlot() >= 9 && event.getRawSlot() < 18) || (event.getRawSlot() >= 1 && event.getRawSlot() < 5)) {
-                event.setCancelled(true);
-                return;
+        int slot = event.getRawSlot();
+
+        // prevent editing decorative zones
+        if ((slot >= 9 && slot < 18) || (slot >= 1 && slot < 5)) {
+            event.setCancelled(true);
+            return;
+        }
+
+        Bukkit.getScheduler().runTask(plugin, () -> {
+            if (slot >= 18 && slot < 54) {
+                int index = slot - 18;
+                int col = index % 9;
+                int targetSlot = switch (index / 9) {
+                    case 0 -> 9 + col;
+                    case 1 -> 18 + col;
+                    case 2 -> 27 + col;
+                    case 3 -> col;
+                    default -> -1;
+                };
+                if (targetSlot >= 0) target.getInventory().setItem(targetSlot, event.getCurrentItem());
+            } else if (slot >= 5 && slot < 9) {
+                target.getInventory().setArmorContents(new ItemStack[]{
+                        inventoryView.getItem(5),
+                        inventoryView.getItem(6),
+                        inventoryView.getItem(7),
+                        inventoryView.getItem(8)
+                });
+            } else if (slot == 0) {
+                target.getInventory().setItemInOffHand(event.getCurrentItem());
             }
-
-            Bukkit.getScheduler().runTask(plugin, () -> {
-                if (event.getRawSlot() >= 18 && event.getRawSlot() < 54) {
-                    int targetSlot = event.getRawSlot() - 18;
-                    int column = targetSlot % 9;
-                    if (targetSlot < 9) {
-                        target.getInventory().setItem(9 + column, event.getCurrentItem());
-                    }
-                    else if (targetSlot >= 9 && targetSlot < 18) {
-                        target.getInventory().setItem(18 + column, event.getCurrentItem());
-                        }
-                    else if (targetSlot >= 18 && targetSlot < 27) {
-                        target.getInventory().setItem(27 + column, event.getCurrentItem());
-                    }
-                    else if (targetSlot >= 27 && targetSlot < 36) {
-                        target.getInventory().setItem(column, event.getCurrentItem());
-                    }
-                } else if (event.getRawSlot() >= 5 && event.getRawSlot() < 9) {
-                    int armorSlot = event.getRawSlot() - 5;
-                    target.getInventory().setArmorContents(new ItemStack[]{
-                            gui.getItem(5), gui.getItem(6), gui.getItem(7), gui.getItem(8)
-                    });
-                } else if (event.getRawSlot() == 0) {
-                    target.getInventory().setItemInOffHand(event.getCurrentItem());
-                }
-                target.updateInventory();
-            });
-        }
+            target.updateInventory();
+        });
     }
 
     @EventHandler
-    public void onInventoryDrag(InventoryDragEvent event) {
-        if (event.getInventory() != gui) return;
+    public void handleDrag(InventoryDragEvent event) {
+        if (event.getInventory() != inventoryView) return;
 
         for (int slot : event.getRawSlots()) {
             if ((slot >= 9 && slot < 18) || (slot >= 1 && slot < 5)) {
@@ -133,23 +133,24 @@ public class InvseeGUI implements Listener {
         Bukkit.getScheduler().runTask(plugin, () -> {
             for (int slot : event.getRawSlots()) {
                 if (slot >= 18 && slot < 54) {
-                    int targetSlot = slot - 18;
-                    int column = targetSlot % 9;
-                    if (targetSlot < 9) {
-                        target.getInventory().setItem(9 + column, event.getNewItems().get(slot));
-                    }
-                    else if (targetSlot >= 9 && targetSlot < 18) {
-                        target.getInventory().setItem(18 + column, event.getNewItems().get(slot));
-                    }
-                    else if (targetSlot >= 18 && targetSlot < 27) {
-                        target.getInventory().setItem(27 + column, event.getNewItems().get(slot));
-                    }
-                    else if (targetSlot >= 27 && targetSlot < 36) {
-                        target.getInventory().setItem(column, event.getNewItems().get(slot));
+                    int index = slot - 18;
+                    int col = index % 9;
+                    int targetSlot = switch (index / 9) {
+                        case 0 -> 9 + col;
+                        case 1 -> 18 + col;
+                        case 2 -> 27 + col;
+                        case 3 -> col;
+                        default -> -1;
+                    };
+                    if (targetSlot >= 0) {
+                        target.getInventory().setItem(targetSlot, event.getNewItems().get(slot));
                     }
                 } else if (slot >= 5 && slot < 9) {
                     target.getInventory().setArmorContents(new ItemStack[]{
-                            gui.getItem(5), gui.getItem(6), gui.getItem(7), gui.getItem(8)
+                            inventoryView.getItem(5),
+                            inventoryView.getItem(6),
+                            inventoryView.getItem(7),
+                            inventoryView.getItem(8)
                     });
                 } else if (slot == 0) {
                     target.getInventory().setItemInOffHand(event.getNewItems().get(slot));
@@ -160,28 +161,28 @@ public class InvseeGUI implements Listener {
     }
 
     @EventHandler
-    public void onInventoryClose(InventoryCloseEvent event) {
-        if (event.getInventory() != gui) return;
+    public void handleClose(InventoryCloseEvent event) {
+        if (event.getInventory() != inventoryView) return;
 
-        updateTask.cancel();
-        InventoryCloseEvent.getHandlerList().unregister(this);
+        if (refreshTask != null) refreshTask.cancel();
         InventoryClickEvent.getHandlerList().unregister(this);
         InventoryDragEvent.getHandlerList().unregister(this);
+        InventoryCloseEvent.getHandlerList().unregister(this);
         PlayerDropItemEvent.getHandlerList().unregister(this);
         PlayerAttemptPickupItemEvent.getHandlerList().unregister(this);
     }
 
     @EventHandler
-    public void onPlayerDropItem(PlayerDropItemEvent event) {
+    public void handleDrop(PlayerDropItemEvent event) {
         if (event.getPlayer() == target) {
-            Bukkit.getScheduler().runTask(plugin, this::updateGUI);
+            Bukkit.getScheduler().runTask(plugin, this::refreshContents);
         }
     }
 
     @EventHandler
-    public void onPlayerPickupItem(PlayerAttemptPickupItemEvent event) {
+    public void handlePickup(PlayerAttemptPickupItemEvent event) {
         if (event.getPlayer() == target) {
-            Bukkit.getScheduler().runTask(plugin, this::updateGUI);
+            Bukkit.getScheduler().runTask(plugin, this::refreshContents);
         }
     }
 }

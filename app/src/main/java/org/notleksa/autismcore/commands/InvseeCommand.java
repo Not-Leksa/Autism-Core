@@ -1,7 +1,6 @@
 package org.notleksa.autismcore.commands;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -19,31 +18,30 @@ public class InvseeCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!(sender instanceof Player)) {
+        if (!(sender instanceof Player viewer)) {
             sender.sendMessage("This command can only be used by players.");
             return true;
         }
 
+        if (!viewer.hasPermission("autismcore.invsee")) {
+            viewer.sendMessage("You don't have permission to use this command faggot");
+            return true;
+        }
+
         if (args.length != 1) {
-            sender.sendMessage("fucking dumbass you do /invsee <player>");
+            viewer.sendMessage("Usage: /invsee <player>");
             return true;
         }
 
-        Player viewer = (Player) sender;
+        // Target lookup
         Player target = Bukkit.getPlayer(args[0]);
-
         if (target == null) {
-            sender.sendMessage("his ass is NOT a player");
+            viewer.sendMessage("his ass is NOT a player");
             return true;
         }
 
-        if (sender.hasPermission("autismcore.invsee")) {
-            new InvseeGUI(plugin, viewer, target).open();
-            return true;
-        } 
-        else {
-            sender.sendMessage("You don't have permission to use this command idiot");
-            return true;
-        }
+        // Open inventory GUI
+        new InvseeGUI(plugin, viewer, target).open();
+        return true;
     }
 }
