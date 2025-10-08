@@ -19,7 +19,7 @@ public final class AutismCore extends JavaPlugin implements Listener {
     // LinkedHashMap preserves order
     public static final Map<String, TextColor> AUTHORS = new LinkedHashMap<>() {{
         put("NotLeksa", NamedTextColor.LIGHT_PURPLE);
-        put("Railo_Sushi", NamedTextColor.GREEN);
+        put("Railo_Sushi", NamedTextColor.AQUA);
     }};
 
     @Override

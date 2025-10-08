@@ -29,12 +29,12 @@ public class CoreCommand implements CommandExecutor {
 
         Component message = Component.text(AutismCore.CORE_ICON + " ", NamedTextColor.LIGHT_PURPLE)
                 .append(Component.text("AutismCore ", NamedTextColor.LIGHT_PURPLE).decorate(TextDecoration.BOLD))
-                .append(Component.text("v" + AutismCore.VERSION, NamedTextColor.AQUA))
+                .append(Component.text("v" + AutismCore.VERSION, NamedTextColor.YELLOW))
                 .append(Component.text("\nMade by: ", NamedTextColor.GREEN))
                 .append(authorsComponent)
-                .append(Component.text("\nSpecial Thanks: pkpro", NamedTextColor.RED))
-                .append(Component.text("\nSupport | Discord: ", NamedTextColor.BLUE))
-                .append(Component.text(AutismCore.DISCORD_LINK, NamedTextColor.BLUE).decorate(TextDecoration.UNDERLINED));
+                .append(Component.text("\nSpecial Thanks: pkpro", NamedTextColor.RED));
+                //.append(Component.text("\nSupport | Discord: ", NamedTextColor.BLUE))
+                //.append(Component.text(AutismCore.DISCORD_LINK, NamedTextColor.BLUE).decorate(TextDecoration.UNDERLINED));
 
         player.sendMessage(message);
 
