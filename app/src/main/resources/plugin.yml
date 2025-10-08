@@ -10,3 +10,41 @@ commands:
     description: Gives info about AutismCore
     usage: /core
     aliases: [autism, autismcore]
+  hide:
+    description: Hides players
+    usage: /hide <all|staff|host|off>
+    aliases: [autism, autismcore]
+  mutechat:
+    description: Toggles chat mute
+    usage: /mutechat
+    permission: autismcore.mutechat
+  spawn:
+    description: Teleport to spawn
+    usage: /spawn
+  setspawn:
+    description: Set the spawn location
+    usage: /setspawn
+    permission: autismcore.setspawn
+  timer:
+    description: Starts a timer
+    usage: /timer <time|cancel> <minutes|seconds>
+
+permissions:
+  autismcore.chatbypass:
+    description: Allows the user to speak when chat is muted
+    default: op
+  autismcore.mutechat:
+    description: Allows the user to mute chat
+    default: op
+  autismcore.host:
+    description: Makes the user a host
+    default: op
+  autismcore.staff:
+    description: Makes the user staff
+    default: op
+  autismcore.setspawn:
+    description: Allows the user to set the spawn location
+    default: op
+  autismcore.invsee:
+    description: Allows the user to use /invsee
+    default: op
