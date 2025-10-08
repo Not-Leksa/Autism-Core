@@ -1,0 +1,6 @@
+name: AutismCore
+main: org.notleksa.autismcore.AutismCore;
+version: 1.0.0
+api-version: 1.21
+description: autism core real
+author: NotLeksa

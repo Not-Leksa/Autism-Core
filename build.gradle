@@ -1,0 +1,13 @@
+plugins {
+    // no plugins here — subprojects handle their own
+}
+
+allprojects {
+    repositories {
+        mavenCentral()
+        maven {
+            name = 'papermc'
+            url = 'https://repo.papermc.io/repository/maven-public/'
+        }
+    }
+}
