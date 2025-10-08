@@ -3,7 +3,7 @@ plugins {
 }
 
 group = 'org.notleksa'
-version = '1.0.0'
+version = '0.0.2'
 
 repositories {
     mavenCentral()
@@ -22,4 +22,10 @@ java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
     }
+}
+
+jar {
+    archiveBaseName.set('AutismCore') // This changes the main name
+    archiveVersion.set(version)       // Optional: set the version (or remove to skip)
+    archiveClassifier.set('')         // Usually empty for main jar
 }
