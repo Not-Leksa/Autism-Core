@@ -15,6 +15,7 @@ import net.kyori.adventure.text.format.NamedTextColor;
 public class TimerCommand implements CommandExecutor {
 
     private final AutismCore plugin;
+    private BukkitRunnable activeTimer; // Track current timer
 
     public TimerCommand(AutismCore plugin) {
         this.plugin = plugin;
@@ -28,15 +29,21 @@ public class TimerCommand implements CommandExecutor {
             return true;
         }
 
+        // Cancel previous timer if running
+        if (activeTimer != null) {
+            activeTimer.cancel();
+            activeTimer = null;
+        }
+
         int duration;
         try {
             duration = Integer.parseInt(args[0]);
             if (duration <= 0) {
-                sender.sendMessage(Component.text("Enter a number thats greater than 0 faggot", NamedTextColor.RED));
+                sender.sendMessage(Component.text("enter a number bigger than 0 faggot", NamedTextColor.RED));
                 return true;
             }
         } catch (NumberFormatException e) {
-            sender.sendMessage(Component.text("His ass is NOT a fucking dumber", NamedTextColor.RED));
+            sender.sendMessage(Component.text("thats not a fucking number???", NamedTextColor.RED));
             return true;
         }
 
@@ -45,36 +52,37 @@ public class TimerCommand implements CommandExecutor {
             case "second", "seconds" -> duration;
             case "minute", "minutes" -> duration * 60;
             default -> {
-                sender.sendMessage(Component.text("thats not a good time unit, use like 'minute' or 'second' or smth", NamedTextColor.RED));
+                sender.sendMessage(Component.text("Invalid unit, use 'second' or 'minute'.", NamedTextColor.RED));
                 yield -1;
             }
         };
 
         if (totalSeconds == -1) return true;
 
-        sender.sendMessage(Component.text("Timer set for" + duration + " " + unit + ".", NamedTextColor.GREEN));
+        sender.sendMessage(Component.text("Timer set for " + duration + " " + unit + ".", NamedTextColor.GREEN));
 
-        new BukkitRunnable() {
+        activeTimer = new BukkitRunnable() {
             int timeLeft = totalSeconds;
 
             @Override
             public void run() {
                 if (timeLeft <= 0) {
-                    var complete = Component.text("times up !!! fr", NamedTextColor.GOLD);
+                    Component complete = Component.text("Time's up!", NamedTextColor.GOLD);
                     for (Player player : Bukkit.getOnlinePlayers()) {
                         player.sendMessage(complete);
                         player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1f, 1f);
                     }
                     cancel();
+                    activeTimer = null; // cancels previous timer
                     return;
                 }
 
-                // Update every minute and for the last 10 seconds
+                // Update every minute and for last 10 seconds
                 if (timeLeft % 60 == 0 || timeLeft <= 10) {
                     int mins = timeLeft / 60;
                     int secs = timeLeft % 60;
                     String formatted = (mins > 0 ? mins + "m " : "") + (secs > 0 ? secs + "s" : "");
-                    var update = Component.text("⏳ " + formatted + " remaining", NamedTextColor.YELLOW);
+                    Component update = Component.text("⏳ " + formatted + " remaining", NamedTextColor.YELLOW);
 
                     for (Player player : Bukkit.getOnlinePlayers()) {
                         player.sendMessage(update);
@@ -84,7 +92,9 @@ public class TimerCommand implements CommandExecutor {
 
                 timeLeft--;
             }
-        }.runTaskTimer(plugin, 0L, 20L);
+        };
+
+        activeTimer.runTaskTimer(plugin, 0L, 20L); 
 
         return true;
     }

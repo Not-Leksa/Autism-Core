@@ -13,7 +13,6 @@ commands:
   hide:
     description: Hides players
     usage: /hide <all|staff|host|off>
-    aliases: [autism, autismcore]
   mutechat:
     description: Toggles chat mute
     usage: /mutechat
@@ -33,6 +32,14 @@ commands:
     description: Starts a timer
     usage: /invsee <player>
     permission: autismcore.invsee
+  revive:
+    description: Revives a player
+    usage: /invsee <player>
+    permission: autismcore.revive
+    aliases: [rev]
+  list:
+    description: Lists all alive/dead players
+    usage: /list <alive|dead>
 
 permissions:
   autismcore.chatbypass:

@@ -1,8 +1,14 @@
 package org.notleksa.autismcore;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.UUID;
+
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
@@ -19,6 +25,7 @@ public final class AutismCore extends JavaPlugin implements Listener {
 
     // Command Variables
     public static boolean chatMuted = false;
+    private final HashMap<UUID, Boolean> aliveStatus = new HashMap<>();
 
     // /Core authors thingy
     public static final Map<String, TextColor> AUTHORS = new LinkedHashMap<>() {{
@@ -48,5 +55,23 @@ public final class AutismCore extends JavaPlugin implements Listener {
         this.getCommand("setspawn").setExecutor(new SetSpawnCommand(this));
         this.getCommand("invsee").setExecutor(new InvseeCommand(this));
         this.getCommand("timer").setExecutor(new TimerCommand(this));
+        this.getCommand("revive").setExecutor(new ReviveCommand(this));
+    }
+
+    // shit for tracking alive and dead people and stuff
+
+    @EventHandler
+    public void onPlayerDeath(PlayerDeathEvent event) {
+        Player player = event.getEntity();
+        aliveStatus.put(player.getUniqueId(), false); // mark dead
+    }
+
+    // Helper methods
+    public boolean isAlive(Player player) {
+        return aliveStatus.getOrDefault(player.getUniqueId(), true);
+    }
+
+    public void setAlive(Player player, boolean alive) {
+        aliveStatus.put(player.getUniqueId(), alive);
     }
 }

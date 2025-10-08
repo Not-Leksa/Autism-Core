@@ -22,18 +22,14 @@ public class InvseeCommand implements CommandExecutor {
             sender.sendMessage("This command can only be used by players.");
             return true;
         }
-
         if (!viewer.hasPermission("autismcore.invsee")) {
             viewer.sendMessage("You don't have permission to use this command faggot");
             return true;
         }
-
         if (args.length != 1) {
             viewer.sendMessage("Usage: /invsee <player>");
             return true;
         }
-
-        // Target lookup
         Player target = Bukkit.getPlayer(args[0]);
         if (target == null) {
             viewer.sendMessage("his ass is NOT a player");
