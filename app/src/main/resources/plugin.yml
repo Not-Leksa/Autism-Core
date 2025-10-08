@@ -40,6 +40,16 @@ commands:
   list:
     description: Lists all alive/dead players
     usage: /list <alive|dead>
+  userevive:
+    description: Request a revive using a revive token
+    aliases: [userev]
+  reviveaccept:
+    description: Accept a player's revive request
+    aliases: [revaccept]
+  addrevive:
+    description: Give a player revive tokens
+    aliases: [addrev]
+    permission: autismcore.addrevive
 
 permissions:
   autismcore.chatbypass:
@@ -60,6 +70,12 @@ permissions:
   autismcore.invsee:
     description: Allows the user to use /invsee
     default: op
-    autismcore.timer:
+  autismcore.timer:
     description: Allows the user to use /timer
+    default: op
+  autismcore.revive:
+    description: Allows the user to use /revive
+    default: op
+  autismcore.addrevive:
+    description: Allows the user to use /addrevive
     default: op

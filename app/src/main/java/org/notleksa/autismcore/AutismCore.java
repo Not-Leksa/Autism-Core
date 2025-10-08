@@ -5,29 +5,28 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 
 import org.notleksa.autismcore.commands.*;
+import org.notleksa.autismcore.handlers.*;
 import org.notleksa.autismcore.listeners.*;
 
 public final class AutismCore extends JavaPlugin implements Listener {
 
-    // Core info shit
+    // core info shit
     public static final String CORE_ICON = "☘";
     public static final String VERSION = "0.0.2";
     public static final String DISCORD_LINK = "https://discord.gg/GrSeG3jR";
 
-    // Command Variables
+    // command variables
     public static boolean chatMuted = false;
     private final HashMap<UUID, Boolean> aliveStatus = new HashMap<>();
 
-    // /Core authors thingy
+
+    // /core authors thingy
     public static final Map<String, TextColor> AUTHORS = new LinkedHashMap<>() {{
         put("NotLeksa", NamedTextColor.LIGHT_PURPLE);
         put("Railo_Sushi", NamedTextColor.AQUA);
@@ -39,7 +38,7 @@ public final class AutismCore extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(this, this);
         getServer().getPluginManager().registerEvents(new MuteChatListener(), this);
 
-        registerCommands();
+        handleCommands();
     }
 
     @Override
@@ -47,7 +46,7 @@ public final class AutismCore extends JavaPlugin implements Listener {
         getLogger().info("AutismCore has been disabled what the fuck i hate you");
     }
 
-    private void registerCommands() {
+    private void handleCommands() {
         this.getCommand("core").setExecutor(new CoreCommand());
         this.getCommand("hide").setExecutor(new HideCommand(this));
         this.getCommand("mutechat").setExecutor(new MuteChatCommand(this));
@@ -55,24 +54,15 @@ public final class AutismCore extends JavaPlugin implements Listener {
         this.getCommand("setspawn").setExecutor(new SetSpawnCommand(this));
         this.getCommand("invsee").setExecutor(new InvseeCommand(this));
         this.getCommand("timer").setExecutor(new TimerCommand(this));
-        this.getCommand("revive").setExecutor(new ReviveCommand(this));
-        this.getCommand("list").setExecutor(new ListCommand(this));
-    }
+        ReviveHandler reviveHandler = new ReviveHandler();
+        this.getCommand("revive").setExecutor(new ReviveCommand(this, reviveHandler));
+        this.getCommand("list").setExecutor(new ListCommand(this, reviveHandler));
 
-    // shit for tracking alive and dead people and stuff
-
-    @EventHandler
-    public void onPlayerDeath(PlayerDeathEvent event) {
-        Player player = event.getEntity();
-        aliveStatus.put(player.getUniqueId(), false); // mark dead
-    }
-
-    // Helper methods
-    public boolean isAlive(Player player) {
-        return aliveStatus.getOrDefault(player.getUniqueId(), true);
-    }
-
-    public void setAlive(Player player, boolean alive) {
-        aliveStatus.put(player.getUniqueId(), alive);
+        // rev token commands
+        ReviveHandler handler = new ReviveHandler();
+        RevTokenCommands reviveCommands = new RevTokenCommands(this, handler);
+        getCommand("userevive").setExecutor(reviveCommands);
+        getCommand("reviveaccept").setExecutor(reviveCommands);
+        getCommand("addrevive").setExecutor(reviveCommands);
     }
 }

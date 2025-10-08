@@ -6,6 +6,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.notleksa.autismcore.AutismCore;
+import org.notleksa.autismcore.handlers.*;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -16,18 +17,15 @@ import java.util.List;
 public class ListCommand implements CommandExecutor {
 
     private final AutismCore plugin;
+    private final ReviveHandler reviveHandler;
 
-    public ListCommand(AutismCore plugin) {
+    public ListCommand(AutismCore plugin, ReviveHandler reviveHandler) {
         this.plugin = plugin;
+        this.reviveHandler = reviveHandler;
     }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-
-        if (!sender.hasPermission("autismcore.list")) {
-            sender.sendMessage(Component.text("You don't have permission to use this command.", NamedTextColor.RED));
-            return true;
-        }
 
         if (args.length != 1) {
             sender.sendMessage(Component.text("Usage: /list <alive|dead>", NamedTextColor.RED));
@@ -40,7 +38,7 @@ public class ListCommand implements CommandExecutor {
         switch (type) {
             case "alive" -> {
                 for (Player player : Bukkit.getOnlinePlayers()) {
-                    if (plugin.isAlive(player)) playersList.add(player.getName());
+                    if (reviveHandler.isAlive(player)) playersList.add(player.getName());
                 }
 
                 if (playersList.isEmpty()) {
@@ -52,7 +50,7 @@ public class ListCommand implements CommandExecutor {
 
             case "dead" -> {
                 for (Player player : Bukkit.getOnlinePlayers()) {
-                    if (!plugin.isAlive(player)) playersList.add(player.getName());
+                    if (!reviveHandler.isAlive(player)) playersList.add(player.getName());
                 }
 
                 if (playersList.isEmpty()) {
@@ -62,7 +60,7 @@ public class ListCommand implements CommandExecutor {
                 }
             }
 
-            default -> sender.sendMessage(Component.text("Invalid option. Use /list <alive|dead>", NamedTextColor.RED));
+            default -> sender.sendMessage(Component.text("Invalid option idiot use /list <alive|dead>", NamedTextColor.RED));
         }
 
         return true;
