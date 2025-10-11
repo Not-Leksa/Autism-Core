@@ -42,6 +42,9 @@ public final class AutismCore extends JavaPlugin implements Listener {
 
         handleCommands();
 
+        
+        ReviveHandler reviveHandler = new ReviveHandler();
+        this.reviveHandler = reviveHandler;
         this.scoreboardHandler = new ScoreboardHandler(this);
         getServer().getPluginManager().registerEvents(scoreboardHandler, this);
 
