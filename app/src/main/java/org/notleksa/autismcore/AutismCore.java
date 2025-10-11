@@ -1,11 +1,13 @@
 package org.notleksa.autismcore;
 
-import java.util.HashMap;
+// TODO: token gamble, msg, socialspy
+
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.UUID;
 
+import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.notleksa.autismcore.commands.CoreCommand;
 import org.notleksa.autismcore.commands.HideCommand;
@@ -14,11 +16,14 @@ import org.notleksa.autismcore.commands.ListCommand;
 import org.notleksa.autismcore.commands.MuteChatCommand;
 import org.notleksa.autismcore.commands.RevTokenCommands;
 import org.notleksa.autismcore.commands.ReviveCommand;
+import org.notleksa.autismcore.commands.SetCooldownCommand;
 import org.notleksa.autismcore.commands.SetSpawnCommand;
 import org.notleksa.autismcore.commands.SpawnCommand;
 import org.notleksa.autismcore.commands.TimerCommand;
+import org.notleksa.autismcore.handlers.CooldownHandler;
+import org.notleksa.autismcore.handlers.MuteChatHandler;
 import org.notleksa.autismcore.handlers.ReviveHandler;
-import org.notleksa.autismcore.listeners.MuteChatListener;
+import org.notleksa.autismcore.handlers.ScoreboardHandler;
 
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
@@ -32,8 +37,8 @@ public final class AutismCore extends JavaPlugin implements Listener {
 
     // command variables
     public static boolean chatMuted = false;
-    private final HashMap<UUID, Boolean> aliveStatus = new HashMap<>();
-
+    private ScoreboardHandler scoreboardHandler;
+    private ReviveHandler reviveHandler;
 
     // /core authors thingy
     public static final Map<String, TextColor> AUTHORS = new LinkedHashMap<>() {{
@@ -45,9 +50,19 @@ public final class AutismCore extends JavaPlugin implements Listener {
     public void onEnable() {
         getLogger().info("AutismCore has been enabled type shi");
         getServer().getPluginManager().registerEvents(this, this);
-        getServer().getPluginManager().registerEvents(new MuteChatListener(), this);
+        getServer().getPluginManager().registerEvents(new MuteChatHandler(), this);
 
         handleCommands();
+
+        this.scoreboardHandler = new ScoreboardHandler(this, reviveHandler);
+
+        // register listener to apply scoreboard when player joins
+        getServer().getPluginManager().registerEvents(new Listener() {
+            @EventHandler
+            public void onJoin(PlayerJoinEvent event) {
+                scoreboardHandler.showScoreboard(event.getPlayer());
+            }
+        }, this);
     }
 
     @Override
@@ -63,15 +78,24 @@ public final class AutismCore extends JavaPlugin implements Listener {
         this.getCommand("setspawn").setExecutor(new SetSpawnCommand(this));
         this.getCommand("invsee").setExecutor(new InvseeCommand(this));
         this.getCommand("timer").setExecutor(new TimerCommand(this));
+
+        // revive commands
         ReviveHandler reviveHandler = new ReviveHandler();
+        CooldownHandler cooldownHandler = new CooldownHandler();
         this.getCommand("revive").setExecutor(new ReviveCommand(this, reviveHandler));
         this.getCommand("list").setExecutor(new ListCommand(this, reviveHandler));
-
-        // rev token commands
-        ReviveHandler handler = new ReviveHandler();
-        RevTokenCommands reviveCommands = new RevTokenCommands(this, handler);
+        RevTokenCommands reviveCommands = new RevTokenCommands(this, reviveHandler, cooldownHandler);
         getCommand("userevive").setExecutor(reviveCommands);
         getCommand("reviveaccept").setExecutor(reviveCommands);
         getCommand("addrevive").setExecutor(reviveCommands);
+        getCommand("tokens").setExecutor(reviveCommands);
+        getCommand("gamble").setExecutor(reviveCommands);
+
+        this.getCommand("setcooldown").setExecutor(new SetCooldownCommand(this, cooldownHandler));
+    }
+
+    
+    public ScoreboardHandler getScoreboardHandler() {
+        return scoreboardHandler;
     }
 }

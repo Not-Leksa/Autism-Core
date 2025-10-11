@@ -5,24 +5,3 @@ spawn:
   z: 0
   yaw: 0
   pitch: 0
-
-server:
-  name: "MyServer"
-  ip: "play.example.com:25565"
-  
-event:
-  name: "event name"
-  color1: "NamedTextColor.WHITE"
-  color2: "NamedTextColor.WHITE"
-  color3: "NamedTextColor.WHITE"
-  color4: "NamedTextColor.WHITE"
-  color5: "NamedTextColor.WHITE"
-  color6: "NamedTextColor.WHITE"
-  color7: "NamedTextColor.WHITE"
-  style1: "TextDecoration.BOLD"
-  style2: "TextDecoration.BOLD"
-  style3: "TextDecoration.BOLD"
-  style4: "TextDecoration.BOLD"
-  style5: "TextDecoration.BOLD"
-  style6: "TextDecoration.BOLD"
-  style7: "TextDecoration.BOLD"

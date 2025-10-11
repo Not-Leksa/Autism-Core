@@ -1,6 +1,6 @@
 name: AutismCore
 main: org.notleksa.autismcore.AutismCore
-version: 0.1.1
+version: 0.1.2
 api-version: 1.21
 description: autism core real
 author: NotLeksa
@@ -50,6 +50,18 @@ commands:
     description: Give a player revive tokens
     aliases: [addrev]
     permission: autismcore.addrevive
+  tokens:
+    description: Give a player revive tokens
+    aliases: [revives, revtokens]
+    permission: autismcore.addrevive
+  gamble:
+    description: Allows a player to gamble their revive tokens
+    aliases: [tokengamble, gambletokens]
+    permission: autismcore.tokengamble
+  setcooldown:
+    description: Sets the cooldown for a command
+    aliases: [tokengamble, gambletokens]
+    permission: autismcore.setcooldown
 
 permissions:
   autismcore.chatbypass:
@@ -78,4 +90,9 @@ permissions:
     default: op
   autismcore.addrevive:
     description: Allows the user to use /addrevive
+    default: op
+  autismcore.tokengamble:
+    description: Allows the user to use /gamble
+  autismcore.setcooldown:
+    description: Allows the user to set command
     default: op
