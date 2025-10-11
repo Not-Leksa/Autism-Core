@@ -65,17 +65,30 @@ public class ScoreboardHandler implements Listener {
     }
 
     public void showScoreboard(Player player) {
-        ScoreboardManager manager = Bukkit.getScoreboardManager();
-        if (manager == null) return;
+        try {
+            ScoreboardManager manager = Bukkit.getScoreboardManager();
+            if (manager == null) return;
 
-        Scoreboard board = manager.getNewScoreboard();
-        Component titleComponent = mm.deserialize(scoreboardConfig.getString("title", "<light_purple>AutismCore"));
-        Objective objective = board.registerNewObjective("autismcore", "dummy", titleComponent);
-        objective.setDisplaySlot(DisplaySlot.SIDEBAR);
+            playerBoards.remove(player);
 
-        updateLines(player, board, objective);
-        player.setScoreboard(board);
-        playerBoards.put(player, board);
+            Scoreboard board = manager.getNewScoreboard();
+
+            Component titleComponent = mm.deserialize(scoreboardConfig.getString("title", "<light_purple>AutismCore"));
+
+            // this shit aint even spaghetti code bro
+            // this is like linguini fr
+            String objectiveName = "autismcore_" + player.getUniqueId().toString().substring(0, 8);
+            Objective objective = board.registerNewObjective(objectiveName, "dummy", titleComponent);
+            objective.setDisplaySlot(DisplaySlot.SIDEBAR);
+
+            updateLines(player, board, objective);
+            player.setScoreboard(board);
+            playerBoards.put(player, board);
+
+        } catch (Exception e) {
+            plugin.getLogger().warning("Failed to show scoreboard for " + player.getName() + ": " + e.getMessage());
+            e.printStackTrace();
+        }   
     }
 
     // PLEASE FUCKING WORK FOR THE LOVE OF PKPRO
