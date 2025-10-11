@@ -62,6 +62,9 @@ commands:
     description: Sets the cooldown for a command
     aliases: [tokengamble, gambletokens]
     permission: autismcore.setcooldown
+  scoreboard:
+    description: Does scoreboard stuff
+    permission: autismcore.scoreboard
 
 permissions:
   autismcore.chatbypass:
@@ -95,4 +98,10 @@ permissions:
     description: Allows the user to use /gamble
   autismcore.setcooldown:
     description: Allows the user to set command
+    default: op
+  autismcore.scoreboard.reload:
+    description: Allows the user to use /scoreboard reload
+    default: op
+  autismcore.scoreboard.toggle:
+    description: Allows the user to use /scoreboard toggle
     default: op

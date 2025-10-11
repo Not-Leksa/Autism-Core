@@ -1,10 +1,12 @@
 package org.notleksa.autismcore;
 
-// TODO: token gamble, msg, socialspy
+// TODO: msg, socialspy, scoreboard, make chat not ugly
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -54,15 +56,13 @@ public final class AutismCore extends JavaPlugin implements Listener {
 
         handleCommands();
 
-        this.scoreboardHandler = new ScoreboardHandler(this, reviveHandler);
+        this.scoreboardHandler = new ScoreboardHandler(this);
+        getServer().getPluginManager().registerEvents(scoreboardHandler, this);
 
-        // register listener to apply scoreboard when player joins
-        getServer().getPluginManager().registerEvents(new Listener() {
-            @EventHandler
-            public void onJoin(PlayerJoinEvent event) {
-                scoreboardHandler.showScoreboard(event.getPlayer());
-            }
-        }, this);
+        // show scoreboard type shi
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            scoreboardHandler.showScoreboard(player);
+        }
     }
 
     @Override
@@ -80,7 +80,6 @@ public final class AutismCore extends JavaPlugin implements Listener {
         this.getCommand("timer").setExecutor(new TimerCommand(this));
 
         // revive commands
-        ReviveHandler reviveHandler = new ReviveHandler();
         CooldownHandler cooldownHandler = new CooldownHandler();
         this.getCommand("revive").setExecutor(new ReviveCommand(this, reviveHandler));
         this.getCommand("list").setExecutor(new ListCommand(this, reviveHandler));
@@ -97,5 +96,9 @@ public final class AutismCore extends JavaPlugin implements Listener {
     
     public ScoreboardHandler getScoreboardHandler() {
         return scoreboardHandler;
+    }
+
+    public ReviveHandler getReviveHandler() {
+        return reviveHandler;
     }
 }
