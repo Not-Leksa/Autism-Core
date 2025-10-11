@@ -11,22 +11,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.notleksa.autismcore.commands.CoreCommand;
-import org.notleksa.autismcore.commands.HideCommand;
-import org.notleksa.autismcore.commands.InvseeCommand;
-import org.notleksa.autismcore.commands.ListCommand;
-import org.notleksa.autismcore.commands.MuteChatCommand;
-import org.notleksa.autismcore.commands.RevTokenCommands;
-import org.notleksa.autismcore.commands.ReviveCommand;
-import org.notleksa.autismcore.commands.SetCooldownCommand;
-import org.notleksa.autismcore.commands.SetSpawnCommand;
-import org.notleksa.autismcore.commands.SpawnCommand;
-import org.notleksa.autismcore.commands.TimerCommand;
-import org.notleksa.autismcore.handlers.CooldownHandler;
-import org.notleksa.autismcore.handlers.MuteChatHandler;
-import org.notleksa.autismcore.handlers.ReviveHandler;
-import org.notleksa.autismcore.handlers.ScoreboardHandler;
-
+import org.notleksa.autismcore.commands.*;
+import org.notleksa.autismcore.handlers.*;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 
@@ -91,6 +77,7 @@ public final class AutismCore extends JavaPlugin implements Listener {
         getCommand("gamble").setExecutor(reviveCommands);
 
         this.getCommand("setcooldown").setExecutor(new SetCooldownCommand(this, cooldownHandler));
+        this.getCommand("scoreboard").setExecutor(new ScoreboardCommand(this, scoreboardHandler));
     }
 
     
