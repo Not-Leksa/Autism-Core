@@ -1,20 +1,19 @@
 package org.notleksa.autismcore.commands;
 
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
-import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 import org.notleksa.autismcore.AutismCore;
 import org.notleksa.autismcore.handlers.ScoreboardHandler;
+
+import net.kyori.adventure.text.minimessage.MiniMessage;
 
 public class ScoreboardCommand implements CommandExecutor {
 
     private final AutismCore plugin;
     private final ScoreboardHandler scoreboardHandler;
-    private boolean toggledOffForAll = false;
+    private final MiniMessage mm = MiniMessage.miniMessage();
 
     public ScoreboardCommand(AutismCore plugin, ScoreboardHandler scoreboardHandler) {
         this.plugin = plugin;
@@ -22,56 +21,40 @@ public class ScoreboardCommand implements CommandExecutor {
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-
-        if (!(sender instanceof Player player)) {
-            sender.sendMessage(Component.text("This command can only be used by players.", NamedTextColor.RED));
-            return true;
-        }
-
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (args.length == 0) {
-            player.sendMessage(Component.text("Usage: /scoreboard <reload|toggle>", NamedTextColor.YELLOW));
+            sender.sendMessage(mm.deserialize("<red>Usage:</red> /scoreboard <reload|toggle>"));
             return true;
         }
 
-        String sub = args[0].toLowerCase();
-
-        switch (sub) {
-
+        switch (args[0].toLowerCase()) {
             case "reload" -> {
-                if (!player.hasPermission("autismcore.scoreboard.reload")) {
-                    player.sendMessage(Component.text("you dont have perms faggot", NamedTextColor.RED));
+                if (!sender.hasPermission("autismcore.scoreboard.reload")) {
+                    sender.sendMessage(mm.deserialize("<red>you dont have perms faggot</red>"));
                     return true;
                 }
+
+                if (scoreboardHandler == null) {
+                    sender.sendMessage(mm.deserialize("<red>Scoreboard handler not initialized! Check plugin setup.</red>"));
+                    plugin.getLogger().severe("Scoreboard handler is null when trying to reload!");
+                    return true;
+                }
+
                 scoreboardHandler.reload();
-                player.sendMessage(Component.text("Scoreboard reloaded!", NamedTextColor.GREEN));
+                sender.sendMessage(mm.deserialize("<green>Scoreboard reloaded successfully.</green>"));
             }
 
             case "toggle" -> {
-                if (!player.hasPermission("autismcore.scoreboard.toggle")) {
-                    player.sendMessage(Component.text("you dont have perms faggot", NamedTextColor.RED));
+                if (!sender.hasPermission("autismcore.scoreboard.toggle")) {
+                    sender.sendMessage(mm.deserialize("<red>you dont have perms faggot</red>"));
                     return true;
                 }
 
-                toggledOffForAll = !toggledOffForAll;
-
-                for (Player p : Bukkit.getOnlinePlayers()) {
-                    if (toggledOffForAll) {
-                        // hide scoreboard
-                        p.setScoreboard(plugin.getServer().getScoreboardManager().getMainScoreboard());
-                    } else {
-                        // show scoreboard
-                        scoreboardHandler.showScoreboard(p);
-                    }
-                }
-
-                player.sendMessage(Component.text(
-                        "Scoreboard " + (toggledOffForAll ? "disabled for all players." : "enabled for all players."),
-                        toggledOffForAll ? NamedTextColor.YELLOW : NamedTextColor.GREEN
-                ));
+                plugin.toggleScoreboard();
+                sender.sendMessage(mm.deserialize("<yellow>Scoreboard visibility toggled for all players.</yellow>"));
             }
 
-            default -> player.sendMessage(Component.text("his ass is NOT a command. Use /scoreboard <reload|toggle>", NamedTextColor.RED));
+            default -> sender.sendMessage(mm.deserialize("<red>Usage:</red> /scoreboard <reload|toggle>"));
         }
 
         return true;

@@ -1,7 +1,11 @@
 package org.notleksa.autismcore.handlers;
 
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -9,7 +13,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
@@ -17,19 +20,16 @@ import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.ScoreboardManager;
 import org.notleksa.autismcore.AutismCore;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 public class ScoreboardHandler implements Listener {
-
     private final AutismCore plugin;
-    private final MiniMessage mm = MiniMessage.miniMessage();
     private File scoreboardFile;
     private FileConfiguration scoreboardConfig;
     private final Map<Player, Scoreboard> playerBoards = new HashMap<>();
+    private final MiniMessage mm = MiniMessage.miniMessage();
 
     public ScoreboardHandler(AutismCore plugin) {
         this.plugin = plugin;
@@ -37,7 +37,6 @@ public class ScoreboardHandler implements Listener {
         startUpdater();
     }
 
-    // creates the scoreboard.yml file with default content if it doesn't exist
     private void createScoreboardFile() {
         scoreboardFile = new File(plugin.getDataFolder(), "scoreboard.yml");
         if (!scoreboardFile.exists()) {
@@ -45,104 +44,125 @@ public class ScoreboardHandler implements Listener {
             try {
                 scoreboardFile.createNewFile();
                 scoreboardConfig = YamlConfiguration.loadConfiguration(scoreboardFile);
-
-                // the default content in question
-                scoreboardConfig.set("title", "<light_purple><bold>AutismCore</bold></light_purple>");
+                scoreboardConfig.set("title", "&dAutismCore");
                 scoreboardConfig.set("lines", List.of(
-                        "<gray>--------------------",
-                        "<white>Player:</white> <light_purple>%player%",
-                        "<white>Online:</white> <light_purple>%online%/%max%",
-                        "<white>Revives:</white> <light_purple>%revivetokens%",
-                        "<gray>--------------------"
+                        "&7--------------------",
+                        "&fPlayer: &d%player%",
+                        "&fOnline: &d%online%/&d%max%",
+                        "&fRevives: &d%revivetokens%",
+                        "&7--------------------"
                 ));
-
                 scoreboardConfig.save(scoreboardFile);
             } catch (IOException e) {
+                plugin.getLogger().warning("Could not create scoreboard.yml: " + e.getMessage());
                 e.printStackTrace();
             }
         }
         scoreboardConfig = YamlConfiguration.loadConfiguration(scoreboardFile);
     }
 
-    public void showScoreboard(Player player) {
-        try {
-            ScoreboardManager manager = Bukkit.getScoreboardManager();
-            if (manager == null) return;
-
-            playerBoards.remove(player);
-
-            Scoreboard board = manager.getNewScoreboard();
-
-            Component titleComponent = mm.deserialize(scoreboardConfig.getString("title", "<light_purple>AutismCore"));
-
-            // this shit aint even spaghetti code bro
-            // this is like linguini fr
-            String objectiveName = "autismcore_" + player.getUniqueId().toString().substring(0, 8);
-            Objective objective = board.registerNewObjective(objectiveName, "dummy", titleComponent);
-            objective.setDisplaySlot(DisplaySlot.SIDEBAR);
-
-            updateLines(player, board, objective);
-            player.setScoreboard(board);
-            playerBoards.put(player, board);
-
-        } catch (Exception e) {
-            plugin.getLogger().warning("Failed to show scoreboard for " + player.getName() + ": " + e.getMessage());
-            e.printStackTrace();
-        }   
+    @EventHandler
+    public void onPlayerJoin(PlayerJoinEvent ev) {
+        showScoreboard(ev.getPlayer());
     }
 
-    // PLEASE FUCKING WORK FOR THE LOVE OF PKPRO
-    @EventHandler
-    public void onPlayerJoin(PlayerJoinEvent event) {
-        showScoreboard(event.getPlayer());
+    public void showScoreboard(Player player) {
+        ScoreboardManager mgr = Bukkit.getScoreboardManager();
+        if (mgr == null) {
+            plugin.getLogger().warning("ScoreboardManager is null, cannot show scoreboard.");
+            return;
+        }
+
+        // Remove old
+        playerBoards.remove(player);
+
+        Scoreboard board = mgr.getNewScoreboard();
+
+        String rawTitle = scoreboardConfig.getString("title", "");
+        if (rawTitle == null || rawTitle.isBlank()) {
+            plugin.getLogger().warning("Scoreboard title is blank or missing in scoreboard.yml");
+        }
+        Component compTitle = mm.deserialize(rawTitle);
+        String legacyTitle = LegacyComponentSerializer.legacySection().serialize(compTitle);
+
+        String objName = "sb_" + player.getUniqueId().toString().substring(0, 8);
+        Objective obj = board.registerNewObjective(objName, "dummy", legacyTitle);
+        obj.setDisplaySlot(DisplaySlot.SIDEBAR);
+
+        updateLines(player, board, obj);
+
+        player.setScoreboard(board);
+        playerBoards.put(player, board);
     }
 
     private void startUpdater() {
         new BukkitRunnable() {
             @Override
             public void run() {
-                for (Player player : Bukkit.getOnlinePlayers()) {
-                    Scoreboard board = playerBoards.get(player);
+                for (Player p : Bukkit.getOnlinePlayers()) {
+                    Scoreboard board = playerBoards.get(p);
                     if (board == null) {
-                        showScoreboard(player);
+                        showScoreboard(p);
                         continue;
                     }
-
-                    Objective objective = board.getObjective(DisplaySlot.SIDEBAR);
-                    if (objective == null) continue;
-
-                    updateLines(player, board, objective);
+                    Objective obj = board.getObjective(DisplaySlot.SIDEBAR);
+                    if (obj == null) {
+                        showScoreboard(p);
+                        continue;
+                    }
+                    updateLines(p, board, obj);
                 }
             }
-        }.runTaskTimer(plugin, 0L, 40L); // 2 seconds (40 ticks)
+        }.runTaskTimer(plugin, 0L, 40L); // update every 2 seconds (40 ticks)
     }
 
-    private void updateLines(Player player, Scoreboard board, Objective objective) {
+    private void updateLines(Player player, Scoreboard board, Objective obj) {
         board.getEntries().forEach(board::resetScores);
 
         List<String> lines = scoreboardConfig.getStringList("lines");
+        if (lines == null || lines.isEmpty()) {
+            plugin.getLogger().warning("No lines configured in scoreboard.yml");
+            return;
+        }
+
         int score = lines.size();
+        for (String raw : lines) {
+            String parsed = raw
+                .replace("%player%", player.getName())
+                .replace("%online%", String.valueOf(Bukkit.getOnlinePlayers().size()))
+                .replace("%max%", String.valueOf(Bukkit.getMaxPlayers()))
+                .replace("%revivetokens%", String.valueOf(plugin.getReviveHandler().getReviveTokens(player)));
 
-        for (String rawLine : lines) {
-            String parsed = rawLine
-                    .replace("%player%", player.getName())
-                    .replace("%online%", String.valueOf(Bukkit.getOnlinePlayers().size()))
-                    .replace("%max%", String.valueOf(Bukkit.getMaxPlayers()))
-                    .replace("%revivetokens%", String.valueOf(plugin.getReviveHandler().getReviveTokens(player)));
+            Component compLine = mm.deserialize(parsed);
+            String legacy = LegacyComponentSerializer.legacySection().serialize(compLine);
 
-            Component line = mm.deserialize(parsed);
-            objective.getScore(line.toString()).setScore(score--);
+            obj.getScore(legacy).setScore(score--);
         }
     }
 
     public void reload() {
         scoreboardConfig = YamlConfiguration.loadConfiguration(scoreboardFile);
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            showScoreboard(player);
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            showScoreboard(p);
         }
     }
 
     public Scoreboard getScoreboard(Player player) {
         return playerBoards.get(player);
+    }
+
+    public void showAll() {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            showScoreboard(player);
+        }
+        plugin.getLogger().info("Displayed scoreboard for all players.");
+    }
+
+    public void hideAll() {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            player.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
+            playerBoards.remove(player);
+        }
+        plugin.getLogger().info("Hid scoreboard for all players.");
     }
 }

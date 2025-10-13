@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -70,5 +71,26 @@ public class ReviveHandler implements Listener {
 
     public void clearAllRequests() {
         pendingReviveRequests.clear();
+    }
+
+    // this shit is for the scoreboard
+
+    public int getAliveCount() {
+        int alive = 0;
+        for (UUID uuid : aliveStatus.keySet()) {
+            if (aliveStatus.getOrDefault(uuid, true)) alive++;
+        }
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            if (!aliveStatus.containsKey(p.getUniqueId())) alive++;
+        }
+        return alive;
+    }
+
+    public int getDeadCount() {
+        int dead = 0;
+        for (UUID uuid : aliveStatus.keySet()) {
+            if (!aliveStatus.getOrDefault(uuid, true)) dead++;
+        }
+        return dead;
     }
 }

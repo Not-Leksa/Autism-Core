@@ -1,3 +1,7 @@
+// dont ask me why there are 2 build.gradle files
+// if i put this into the other one it breaks for no reason
+// what the fuck
+
 plugins {
     // no plugins here — subprojects handle their own
 }

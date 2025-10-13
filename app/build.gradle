@@ -3,7 +3,7 @@ plugins {
 }
 
 group = 'org.notleksa'
-version = '0.1.2'
+version = '0.6.73'
 
 repositories {
     mavenCentral()
@@ -14,7 +14,6 @@ repositories {
 }
 
 dependencies {
-    // ONLY compileOnly — Paper API is provided by the server at runtime
     compileOnly 'io.papermc.paper:paper-api:1.21.1-R0.1-SNAPSHOT'
     implementation 'net.kyori:adventure-api:4.25.0'
 }
@@ -26,7 +25,7 @@ java {
 }
 
 jar {
-    archiveBaseName.set('AutismCore') // This changes the main name
-    archiveVersion.set(version)       // Optional: set the version (or remove to skip)
-    archiveClassifier.set('')         // Usually empty for main jar
+    archiveBaseName.set('AutismCore')
+    archiveVersion.set(version)
+    archiveClassifier.set('')
 }
