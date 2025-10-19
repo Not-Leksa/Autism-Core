@@ -30,7 +30,7 @@ public class ScoreboardCommand implements CommandExecutor {
         switch (args[0].toLowerCase()) {
             case "reload" -> {
                 if (!sender.hasPermission("autismcore.scoreboard.reload")) {
-                    sender.sendMessage(mm.deserialize("<red>you dont have perms faggot</red>"));
+                    sender.sendMessage(mm.deserialize("<red>you dont have perms idiot</red>"));
                     return true;
                 }
 
@@ -46,7 +46,7 @@ public class ScoreboardCommand implements CommandExecutor {
 
             case "toggle" -> {
                 if (!sender.hasPermission("autismcore.scoreboard.toggle")) {
-                    sender.sendMessage(mm.deserialize("<red>you dont have perms faggot</red>"));
+                    sender.sendMessage(mm.deserialize("<red>you dont have perms idiot</red>"));
                     return true;
                 }
 

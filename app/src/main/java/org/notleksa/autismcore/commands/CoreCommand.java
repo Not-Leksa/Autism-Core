@@ -30,7 +30,7 @@ public class CoreCommand implements CommandExecutor {
         Component message = Component.text(AutismCore.CORE_ICON + " ", NamedTextColor.LIGHT_PURPLE)
                 .append(Component.text("AutismCore ", NamedTextColor.LIGHT_PURPLE).decorate(TextDecoration.BOLD))
                 .append(Component.text("v" + AutismCore.VERSION, NamedTextColor.YELLOW))
-                .append(Component.text("\nMade by: ", NamedTextColor.GREEN))
+                .append(Component.text("\nAuthors: ", NamedTextColor.GREEN))
                 .append(authorsComponent)
                 .append(Component.text("\nSpecial Thanks: pkpro", NamedTextColor.BLUE));
                 //.append(Component.text("\nSupport | Discord: ", NamedTextColor.BLUE))

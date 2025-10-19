@@ -28,7 +28,7 @@ public class SetCooldownCommand implements CommandExecutor {
         }
 
         if (!player.hasPermission("autismcore.setcooldown")) {
-            player.sendMessage(Component.text("You don't have permission to use this command faggot", NamedTextColor.RED));
+            player.sendMessage(Component.text("you dont have perms idiot", NamedTextColor.RED));
             return true;
         }
 

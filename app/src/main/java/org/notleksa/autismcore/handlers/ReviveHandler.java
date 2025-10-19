@@ -6,11 +6,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
 
 public class ReviveHandler implements Listener {
 
@@ -18,26 +19,56 @@ public class ReviveHandler implements Listener {
     private final Map<UUID, Integer> reviveTokens = new HashMap<>();
     private final Set<UUID> pendingReviveRequests = new HashSet<>();
 
-    // Alive and dead handling
+    // alive dead handling
+
+    public int getAliveCount() {
+        int alive = 0;
+        for (boolean status : aliveStatus.values()) {
+            if (status) alive++;
+        }
+        return alive;
+    }
+
+    public int getDeadCount() {
+        int dead = 0;
+        for (boolean status : aliveStatus.values()) {
+            if (!status) dead++;
+        }
+        return dead;
+    }
+
+    @EventHandler
+    public void onPlayerJoin(PlayerJoinEvent event) {
+        Player player = event.getPlayer();
+        aliveStatus.putIfAbsent(player.getUniqueId(), false); // default dead
+    }
+
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {
         Player player = event.getEntity();
-        aliveStatus.put(player.getUniqueId(), false); // mark dead
+        aliveStatus.put(player.getUniqueId(), false);
+    }
+
+    @EventHandler
+    public void onPlayerRespawn(PlayerRespawnEvent event) {
+        Player player = event.getPlayer();
+        aliveStatus.put(player.getUniqueId(), false);
     }
 
     public boolean isAlive(Player player) {
         return aliveStatus.getOrDefault(player.getUniqueId(), false); // default dead
     }
 
-    public void setAlive(Player player, boolean alive) {
-        aliveStatus.put(player.getUniqueId(), alive); // mark alive
+    public void setAlive(Player player) {
+        aliveStatus.put(player.getUniqueId(), true);
     }
 
     public void markDead(Player player) {
         aliveStatus.put(player.getUniqueId(), false);
     }
 
-    // Rev Tokens
+    // rev tokens
+
     public int getReviveTokens(Player player) {
         return reviveTokens.getOrDefault(player.getUniqueId(), 0);
     }
@@ -71,26 +102,5 @@ public class ReviveHandler implements Listener {
 
     public void clearAllRequests() {
         pendingReviveRequests.clear();
-    }
-
-    // this shit is for the scoreboard
-
-    public int getAliveCount() {
-        int alive = 0;
-        for (UUID uuid : aliveStatus.keySet()) {
-            if (aliveStatus.getOrDefault(uuid, true)) alive++;
-        }
-        for (Player p : Bukkit.getOnlinePlayers()) {
-            if (!aliveStatus.containsKey(p.getUniqueId())) alive++;
-        }
-        return alive;
-    }
-
-    public int getDeadCount() {
-        int dead = 0;
-        for (UUID uuid : aliveStatus.keySet()) {
-            if (!aliveStatus.getOrDefault(uuid, true)) dead++;
-        }
-        return dead;
     }
 }

@@ -1,29 +1,27 @@
 package org.notleksa.autismcore.commands;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.notleksa.autismcore.AutismCore;
-import org.notleksa.autismcore.handlers.*;
+import org.notleksa.autismcore.handlers.ReviveHandler;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-
 public class ReviveCommand implements CommandExecutor {
 
     private final AutismCore plugin;
-    private final ReviveHandler reviveHandler;
     private final Random random = new Random();
 
-    public ReviveCommand(AutismCore plugin, ReviveHandler reviveHandler) {
+    public ReviveCommand(AutismCore plugin) {
         this.plugin = plugin;
-        this.reviveHandler = reviveHandler;
     }
 
     @Override
@@ -36,7 +34,7 @@ public class ReviveCommand implements CommandExecutor {
 
         // Permission check
         if (!executor.hasPermission("autismcore.revive")) {
-            executor.sendMessage(Component.text("You don't have permission to use this command faggot", NamedTextColor.RED));
+            executor.sendMessage(Component.text("you dont have perms idiot", NamedTextColor.RED));
             return true;
         }
 
@@ -44,6 +42,13 @@ public class ReviveCommand implements CommandExecutor {
             executor.sendMessage(Component.text("Usage: /revive <player|all|random>", NamedTextColor.RED));
             return true;
         }
+
+        ReviveHandler reviveHandler = plugin.getReviveHandler();
+        if (reviveHandler == null) {
+            sender.sendMessage(Component.text("Revive system isnt loaded???", NamedTextColor.RED));
+            return true;
+        }
+
 
         String targetArg = args[0].toLowerCase();
 
@@ -54,7 +59,7 @@ public class ReviveCommand implements CommandExecutor {
                 for (Player player : Bukkit.getOnlinePlayers()) {
                     if (!reviveHandler.isAlive(player)) {
                         player.teleport(executor.getLocation());
-                        reviveHandler.setAlive(player, true);
+                        reviveHandler.setAlive(player);
                         player.sendMessage(Component.text("You have been revived by " + executor.getName(), NamedTextColor.GREEN));
                         revivedCount++;
                     }
@@ -75,7 +80,7 @@ public class ReviveCommand implements CommandExecutor {
 
                 Player target = deadPlayers.get(random.nextInt(deadPlayers.size()));
                 target.teleport(executor.getLocation());
-                reviveHandler.setAlive(target, true);
+                reviveHandler.setAlive(target);
                 executor.sendMessage(Component.text("Revived " + target.getName(), NamedTextColor.GREEN));
                 target.sendMessage(Component.text("You have been revived by " + executor.getName(), NamedTextColor.GREEN));
             }
@@ -83,12 +88,14 @@ public class ReviveCommand implements CommandExecutor {
             default -> {
                 Player target = Bukkit.getPlayer(targetArg);
                 if (target == null) {
-                    executor.sendMessage(Component.text("Player not found.", NamedTextColor.RED));
+                    executor.sendMessage(Component.text("his ass is NOT a player", NamedTextColor.RED));
                     return true;
                 }
 
+                
+
                 target.teleport(executor.getLocation());
-                reviveHandler.setAlive(target, true);
+                reviveHandler.setAlive(target);
                 executor.sendMessage(Component.text("You revived " + target.getName(), NamedTextColor.GREEN));
                 target.sendMessage(Component.text("You have been revived by " + executor.getName(), NamedTextColor.GREEN));
             }

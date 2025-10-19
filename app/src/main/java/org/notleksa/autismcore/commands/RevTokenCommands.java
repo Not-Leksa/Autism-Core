@@ -69,7 +69,7 @@ public class RevTokenCommands implements CommandExecutor {
 
             case "reviveaccept" -> {
                 if (!sender.hasPermission("autismcore.revive")) {
-                    sender.sendMessage(Component.text("You don't have permission to accept revives dumbass", NamedTextColor.RED));
+                    sender.sendMessage(Component.text("you dont have perms idiot", NamedTextColor.RED));
                     return true;
                 }
 
@@ -90,7 +90,7 @@ public class RevTokenCommands implements CommandExecutor {
                 }
 
                 reviveHandler.removeReviveRequest(target);
-                reviveHandler.setAlive(target, true);
+                reviveHandler.setAlive(target);
 
                 target.teleport(player.getLocation());
 
@@ -100,7 +100,7 @@ public class RevTokenCommands implements CommandExecutor {
 
             case "addrevive" -> {
                 if (!sender.hasPermission("autismcore.addrevive")) {
-                    sender.sendMessage(Component.text("you dont have perms faggot", NamedTextColor.RED));
+                    sender.sendMessage(Component.text("you dont have perms idiot", NamedTextColor.RED));
                     return true;
                 }
 

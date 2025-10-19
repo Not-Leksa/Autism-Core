@@ -26,13 +26,17 @@ import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 public class ScoreboardHandler implements Listener {
     private final AutismCore plugin;
+    private final ReviveHandler reviveHandler;
     private File scoreboardFile;
     private FileConfiguration scoreboardConfig;
     private final Map<Player, Scoreboard> playerBoards = new HashMap<>();
     private final MiniMessage mm = MiniMessage.miniMessage();
+    private String eventMessage = "";
+    private String eventTimerDisplay = "";
 
-    public ScoreboardHandler(AutismCore plugin) {
+    public ScoreboardHandler(AutismCore plugin, ReviveHandler reviveHandler) {
         this.plugin = plugin;
+        this.reviveHandler = reviveHandler;
         createScoreboardFile();
         startUpdater();
     }
@@ -131,7 +135,11 @@ public class ScoreboardHandler implements Listener {
                 .replace("%player%", player.getName())
                 .replace("%online%", String.valueOf(Bukkit.getOnlinePlayers().size()))
                 .replace("%max%", String.valueOf(Bukkit.getMaxPlayers()))
-                .replace("%revivetokens%", String.valueOf(plugin.getReviveHandler().getReviveTokens(player)));
+                .replace("%revivetokens%", String.valueOf(plugin.getReviveHandler().getReviveTokens(player)))
+                .replace("%alive%", String.valueOf(reviveHandler.getAliveCount()))
+                .replace("%dead%", String.valueOf(reviveHandler.getDeadCount()))
+                .replace("%event%", String.valueOf(this.eventMessage))
+                .replace("%eventcountdown%", String.valueOf(this.eventTimerDisplay));
 
             Component compLine = mm.deserialize(parsed);
             String legacy = LegacyComponentSerializer.legacySection().serialize(compLine);
@@ -164,5 +172,26 @@ public class ScoreboardHandler implements Listener {
             playerBoards.remove(player);
         }
         plugin.getLogger().info("Hid scoreboard for all players.");
+    }
+
+    public void setEventMessage(String message) {
+        this.eventMessage = message;
+        updateAllScoreboards();
+    }
+
+    public void setEventTimer(int minutes) {
+        this.eventTimerDisplay = minutes + "m remaining";
+        updateAllScoreboards();
+    }
+
+    public void clearEventTimer() {
+        this.eventTimerDisplay = "";
+        updateAllScoreboards();
+    }
+
+    private void updateAllScoreboards() {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            showScoreboard(player);
+        }
     }
 }

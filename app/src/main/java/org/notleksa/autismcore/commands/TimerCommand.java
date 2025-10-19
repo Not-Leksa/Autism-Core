@@ -39,7 +39,7 @@ public class TimerCommand implements CommandExecutor {
         try {
             duration = Integer.parseInt(args[0]);
             if (duration <= 0) {
-                sender.sendMessage(Component.text("enter a number bigger than 0 faggot", NamedTextColor.RED));
+                sender.sendMessage(Component.text("enter a number bigger than 0 dumbass", NamedTextColor.RED));
                 return true;
             }
         } catch (NumberFormatException e) {
@@ -70,7 +70,6 @@ public class TimerCommand implements CommandExecutor {
                     Component complete = Component.text("Time's up!", NamedTextColor.GOLD);
                     for (Player player : Bukkit.getOnlinePlayers()) {
                         player.sendMessage(complete);
-                        player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1f, 1f);
                     }
                     cancel();
                     activeTimer = null; // cancels previous timer

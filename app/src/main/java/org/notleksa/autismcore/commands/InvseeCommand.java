@@ -23,7 +23,7 @@ public class InvseeCommand implements CommandExecutor {
             return true;
         }
         if (!viewer.hasPermission("autismcore.invsee")) {
-            viewer.sendMessage("You don't have permission to use this command faggot");
+            viewer.sendMessage("you dont have perms idiot");
             return true;
         }
         if (args.length != 1) {

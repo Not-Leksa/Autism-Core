@@ -23,7 +23,7 @@ public class SetSpawnCommand implements CommandExecutor {
         }
 
         if (!player.hasPermission("autismcore.setspawn")) {
-            player.sendMessage("You don't have permission to use this command faggot");
+            player.sendMessage("you dont have perms idiot");
             return true;
         }
 

@@ -3,7 +3,7 @@ plugins {
 }
 
 group = 'org.notleksa'
-version = '0.6.73'
+version = '0.7.0'
 
 repositories {
     mavenCentral()
@@ -11,6 +11,8 @@ repositories {
         name = 'papermc'
         url = 'https://repo.papermc.io/repository/maven-public/'
     }
+
+    maven { url = 'https://jitpack.io' }
 }
 
 dependencies {

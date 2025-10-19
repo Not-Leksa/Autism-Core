@@ -1,6 +1,6 @@
 package org.notleksa.autismcore;
 
-// TODO: make chat not ugly, (socialspy???), fix %dead% and %alive%, idk what else
+// TODO: make chat not ugly, chat revs, /tpalive /tpdead, maybe other shit
 
 import java.io.File;
 import java.io.IOException;
@@ -10,29 +10,13 @@ import java.util.Map;
 
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.notleksa.autismcore.commands.CoreCommand;
-import org.notleksa.autismcore.commands.HideCommand;
-import org.notleksa.autismcore.commands.InvseeCommand;
-import org.notleksa.autismcore.commands.ListCommand;
-import org.notleksa.autismcore.commands.MessageCommands;
-import org.notleksa.autismcore.commands.MuteChatCommand;
-import org.notleksa.autismcore.commands.RevTokenCommands;
-import org.notleksa.autismcore.commands.ReviveCommand;
-import org.notleksa.autismcore.commands.ScoreboardCommand;
-import org.notleksa.autismcore.commands.SetCooldownCommand;
-import org.notleksa.autismcore.commands.SetSpawnCommand;
-import org.notleksa.autismcore.commands.SpawnCommand;
-import org.notleksa.autismcore.commands.TimerCommand;
-import org.notleksa.autismcore.handlers.CooldownHandler;
-import org.notleksa.autismcore.handlers.MuteChatHandler;
-import org.notleksa.autismcore.handlers.ReviveHandler;
-import org.notleksa.autismcore.handlers.ScoreboardHandler;
+import org.notleksa.autismcore.commands.*;
+import org.notleksa.autismcore.handlers.*;
 
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
@@ -41,7 +25,7 @@ public final class AutismCore extends JavaPlugin implements Listener {
 
     // core info shit
     public static final String CORE_ICON = "☘";
-    public static final String VERSION = "0.6.73";
+    public static final String VERSION = "0.7.0";
     public static final String DISCORD_LINK = "https://discord.gg/GrSeG3jR";
 
     // command variables
@@ -62,33 +46,29 @@ public final class AutismCore extends JavaPlugin implements Listener {
 
     @Override
     public void onEnable() {
-        getLogger().info("AutismCore has been enabled type shi");
+        getLogger().info("AutismCore enabled!");
+
+        // Instantiate handlers once
+        reviveHandler = new ReviveHandler();
+        scoreboardHandler = new ScoreboardHandler(this, reviveHandler);
+
+        // Register event listeners
         getServer().getPluginManager().registerEvents(this, this);
+        getServer().getPluginManager().registerEvents(reviveHandler, this);
+        getServer().getPluginManager().registerEvents(scoreboardHandler, this);
         getServer().getPluginManager().registerEvents(new MuteChatHandler(), this);
 
-        handleCommands();
-
-        
-        ReviveHandler reviveHandler2 = new ReviveHandler();
-        this.reviveHandler = reviveHandler2;
-        scoreboardHandler = new ScoreboardHandler(this);
-        getServer().getPluginManager().registerEvents(scoreboardHandler, this);
-
-        // show scoreboard type shi
+        // Show scoreboard for all online players
         for (Player player : Bukkit.getOnlinePlayers()) {
             scoreboardHandler.showScoreboard(player);
         }
 
-        scoreboardFile = new File(getDataFolder(), "scoreboard.yml");
-        scoreboardConfig = YamlConfiguration.loadConfiguration(scoreboardFile);
-    }
-
-    @Override
-    public void onDisable() {
-        getLogger().info("AutismCore has been disabled what the fuck i hate you");
+        // Register commands
+        handleCommands();
     }
 
     private void handleCommands() {
+        // Core commands
         this.getCommand("core").setExecutor(new CoreCommand());
         this.getCommand("hide").setExecutor(new HideCommand(this));
         this.getCommand("mutechat").setExecutor(new MuteChatCommand(this));
@@ -96,38 +76,50 @@ public final class AutismCore extends JavaPlugin implements Listener {
         this.getCommand("setspawn").setExecutor(new SetSpawnCommand(this));
         this.getCommand("invsee").setExecutor(new InvseeCommand(this));
         this.getCommand("timer").setExecutor(new TimerCommand(this));
+        this.getCommand("scoreboard").setExecutor(new ScoreboardCommand(this, scoreboardHandler));
+        this.getCommand("event").setExecutor(new EventCommands(this, scoreboardHandler));
 
-        // revive commands
+        // Revive commands
         CooldownHandler cooldownHandler = new CooldownHandler();
-        this.getCommand("revive").setExecutor(new ReviveCommand(this, reviveHandler));
+        this.getCommand("revive").setExecutor(new ReviveCommand(this));
         this.getCommand("list").setExecutor(new ListCommand(this, reviveHandler));
+
         RevTokenCommands reviveCommands = new RevTokenCommands(this, reviveHandler, cooldownHandler);
-        getCommand("userevive").setExecutor(reviveCommands);
-        getCommand("reviveaccept").setExecutor(reviveCommands);
-        getCommand("addrevive").setExecutor(reviveCommands);
-        getCommand("tokens").setExecutor(reviveCommands);
-        getCommand("gamble").setExecutor(reviveCommands);
+        this.getCommand("userevive").setExecutor(reviveCommands);
+        this.getCommand("reviveaccept").setExecutor(reviveCommands);
+        this.getCommand("addrevive").setExecutor(reviveCommands);
+        this.getCommand("tokens").setExecutor(reviveCommands);
+        this.getCommand("gamble").setExecutor(reviveCommands);
+
+        getCommand("tpalive").setExecutor(new TeleportCommands(this));
+        getCommand("tpdead").setExecutor(new TeleportCommands(this));
+
+
 
         this.getCommand("setcooldown").setExecutor(new SetCooldownCommand(this, cooldownHandler));
-        ScoreboardHandler scoreboardHandler2 = new ScoreboardHandler(this);
-        getCommand("scoreboard").setExecutor(new ScoreboardCommand(this, scoreboardHandler2));
+        
 
-        // message commands
+        // Message commands
         MessageCommands messageCommands = new MessageCommands();
-        getCommand("msg").setExecutor(messageCommands);
-        getCommand("r").setExecutor(messageCommands);
-        getCommand("msgtoggle").setExecutor(messageCommands);
-        getCommand("msgblock").setExecutor(messageCommands);
+        this.getCommand("msg").setExecutor(messageCommands);
+        this.getCommand("r").setExecutor(messageCommands);
+        this.getCommand("msgtoggle").setExecutor(messageCommands);
+        this.getCommand("msgblock").setExecutor(messageCommands);
     }
 
-    
-    public ScoreboardHandler getScoreboardHandler() {
-        return scoreboardHandler;
+    @Override
+    public void onDisable() {
+        getLogger().info("AutismCore disabled!");
     }
 
     public ReviveHandler getReviveHandler() {
         return reviveHandler;
     }
+
+    public ScoreboardHandler getScoreboardHandler() {
+        return scoreboardHandler;
+    }
+
 
     public boolean isScoreboardEnabled() {
         return scoreboardEnabled;
