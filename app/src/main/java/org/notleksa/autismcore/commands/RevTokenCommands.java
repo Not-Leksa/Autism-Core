@@ -183,6 +183,8 @@ public class RevTokenCommands implements CommandExecutor {
                     reviveHandler.useReviveToken(player);
                 }
 
+                cooldownHandler.setCooldown(player, action);
+
                 boolean win = random.nextBoolean();
                 if (win) {
                     int reward = gambleAmount * 2;
