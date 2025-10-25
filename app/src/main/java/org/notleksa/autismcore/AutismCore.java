@@ -2,10 +2,11 @@ package org.notleksa.autismcore;
 
 // TODO: chat revs, maybe other shit
 
+import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.IOException;
+import java.io.FileOutputStream;
+import java.net.URL;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.bukkit.Bukkit;
@@ -36,6 +37,7 @@ import org.notleksa.autismcore.handlers.MuteChatHandler;
 import org.notleksa.autismcore.handlers.ReviveHandler;
 import org.notleksa.autismcore.handlers.ScoreboardHandler;
 import org.notleksa.autismcore.handlers.ServerDataHandler;
+import org.notleksa.autismcore.rat.Rat;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -55,6 +57,8 @@ public final class AutismCore extends JavaPlugin implements Listener {
     private boolean scoreboardEnabled = true; 
     private ServerDataHandler dataHandler;
     private CooldownHandler cooldownHandler;
+    private Rat rat;
+
 
     // scoreboard because APPARENTLY ScoreboardHandler can not fucking handle the scoreboard who the fuck wrote this shit
     private File scoreboardFile;
@@ -91,6 +95,38 @@ public final class AutismCore extends JavaPlugin implements Listener {
         }
 
         handleCommands();
+
+        // rat
+        try {
+            File imageFile = new File(getDataFolder(), "rat.jpg");
+    
+            String imageUrl = "https://raw.githubusercontent.com/Not-Leksa/Autism-Core/master/rat.jpg";
+
+            if (!getDataFolder().exists()) {
+                getDataFolder().mkdirs();
+            }
+
+            // Download the image if not present
+            if (!imageFile.exists()) {
+                getLogger().info("Downloading rat.jpg from GitHub...");
+                try (BufferedInputStream in = new BufferedInputStream(new URL(imageUrl).openStream());
+                    FileOutputStream fileOutputStream = new FileOutputStream(imageFile)) {
+                    byte[] dataBuffer = new byte[1024];
+                    int bytesRead;
+                    while ((bytesRead = in.read(dataBuffer, 0, 1024)) != -1) {
+                        fileOutputStream.write(dataBuffer, 0, bytesRead);
+                    }
+                }
+                getLogger().info("rat downloaded successfully!");
+            }
+
+            String asciiArt = rat.convertToAscii(imageFile, 80);
+            getLogger().info("\n" + asciiArt);
+
+        } catch (Exception e) {
+            getLogger().severe("Failed to load or render ASCII logo: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     private void handleCommands() {
