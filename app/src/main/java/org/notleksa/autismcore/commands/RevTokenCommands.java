@@ -174,7 +174,7 @@ public class RevTokenCommands implements CommandExecutor {
                     return true;
                 }
 
-             if (gambleAmount > playerTokens) {
+                if (gambleAmount > playerTokens) {
                     player.sendMessage(Component.text("you do NOT have that many tokens idiot", NamedTextColor.RED));
                     return true;
                 }

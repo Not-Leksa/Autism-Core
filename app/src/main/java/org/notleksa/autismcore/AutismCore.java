@@ -1,6 +1,6 @@
 package org.notleksa.autismcore;
 
-// TODO: make chat not ugly, chat revs, /tpalive /tpdead, maybe other shit
+// TODO: chat revs, maybe other shit
 
 import java.io.File;
 import java.io.IOException;
@@ -14,10 +14,30 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.notleksa.autismcore.commands.*;
-import org.notleksa.autismcore.handlers.*;
+import org.notleksa.autismcore.commands.CoreCommand;
+import org.notleksa.autismcore.commands.EventCommands;
+import org.notleksa.autismcore.commands.HideCommand;
+import org.notleksa.autismcore.commands.InvseeCommand;
+import org.notleksa.autismcore.commands.ListCommand;
+import org.notleksa.autismcore.commands.MessageCommands;
+import org.notleksa.autismcore.commands.MuteChatCommand;
+import org.notleksa.autismcore.commands.RevTokenCommands;
+import org.notleksa.autismcore.commands.ReviveCommand;
+import org.notleksa.autismcore.commands.ScoreboardCommand;
+import org.notleksa.autismcore.commands.SetCooldownCommand;
+import org.notleksa.autismcore.commands.SetSpawnCommand;
+import org.notleksa.autismcore.commands.SpawnCommand;
+import org.notleksa.autismcore.commands.TeleportCommands;
+import org.notleksa.autismcore.commands.TimerCommand;
+import org.notleksa.autismcore.handlers.CooldownHandler;
+import org.notleksa.autismcore.handlers.MuteChatHandler;
+import org.notleksa.autismcore.handlers.ReviveHandler;
+import org.notleksa.autismcore.handlers.ScoreboardHandler;
+import org.notleksa.autismcore.handlers.ServerDataHandler;
 
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 
@@ -25,7 +45,7 @@ public final class AutismCore extends JavaPlugin implements Listener {
 
     // core info shit
     public static final String CORE_ICON = "☘";
-    public static final String VERSION = "0.7.0";
+    public static final String VERSION = "0.7.1";
     public static final String DISCORD_LINK = "https://discord.gg/GrSeG3jR";
 
     // command variables
@@ -33,6 +53,8 @@ public final class AutismCore extends JavaPlugin implements Listener {
     private ScoreboardHandler scoreboardHandler;
     private ReviveHandler reviveHandler;
     private boolean scoreboardEnabled = true; 
+    private ServerDataHandler dataHandler;
+    private CooldownHandler cooldownHandler;
 
     // scoreboard because APPARENTLY ScoreboardHandler can not fucking handle the scoreboard who the fuck wrote this shit
     private File scoreboardFile;
@@ -41,18 +63,23 @@ public final class AutismCore extends JavaPlugin implements Listener {
     // /core authors thingy
     public static final Map<String, TextColor> AUTHORS = new LinkedHashMap<>() {{
         put("NotLeksa", NamedTextColor.LIGHT_PURPLE);
-        put("Railo_Sushi", NamedTextColor.AQUA);
     }};
 
     @Override
     public void onEnable() {
         getLogger().info("AutismCore enabled!");
 
-        // Instantiate handlers once
-        reviveHandler = new ReviveHandler();
-        scoreboardHandler = new ScoreboardHandler(this, reviveHandler);
+        scoreboardFile = new File(getDataFolder(), "scoreboard.yml");
+        if (!scoreboardFile.exists()) {
+            saveResource("scoreboard.yml", false);
+        }
+        scoreboardConfig = org.bukkit.configuration.file.YamlConfiguration.loadConfiguration(scoreboardFile);
 
-        // Register event listeners
+        dataHandler = new ServerDataHandler(this);
+        reviveHandler = new ReviveHandler(dataHandler);
+        scoreboardHandler = new ScoreboardHandler(this, reviveHandler);
+        cooldownHandler = new CooldownHandler(dataHandler);
+
         getServer().getPluginManager().registerEvents(this, this);
         getServer().getPluginManager().registerEvents(reviveHandler, this);
         getServer().getPluginManager().registerEvents(scoreboardHandler, this);
@@ -63,7 +90,6 @@ public final class AutismCore extends JavaPlugin implements Listener {
             scoreboardHandler.showScoreboard(player);
         }
 
-        // Register commands
         handleCommands();
     }
 
@@ -80,7 +106,6 @@ public final class AutismCore extends JavaPlugin implements Listener {
         this.getCommand("event").setExecutor(new EventCommands(this, scoreboardHandler));
 
         // Revive commands
-        CooldownHandler cooldownHandler = new CooldownHandler();
         this.getCommand("revive").setExecutor(new ReviveCommand(this));
         this.getCommand("list").setExecutor(new ListCommand(this, reviveHandler));
 
@@ -110,16 +135,28 @@ public final class AutismCore extends JavaPlugin implements Listener {
     @Override
     public void onDisable() {
         getLogger().info("AutismCore disabled!");
+        if (dataHandler != null) {
+            dataHandler.saveAll();
+        }
     }
+    
 
     public ReviveHandler getReviveHandler() {
         return reviveHandler;
+    }
+
+    
+    public ServerDataHandler getServerDataHandler() {
+        return dataHandler;
     }
 
     public ScoreboardHandler getScoreboardHandler() {
         return scoreboardHandler;
     }
 
+    public CooldownHandler getCooldownHandler() {
+        return cooldownHandler;
+    }
 
     public boolean isScoreboardEnabled() {
         return scoreboardEnabled;
@@ -153,45 +190,35 @@ public final class AutismCore extends JavaPlugin implements Listener {
     }
 
     @EventHandler
-    public void onJoin(PlayerJoinEvent event) {
-        Player player = event.getPlayer();
+    public void onPlayerJoin(PlayerJoinEvent event) {
 
-        String message = getConfig().getString(
-            "welcome-message", // config path
-            "Welcome %player%! Alive players: %online%" // default if missing
-        );;
-    }
+        // player join message
+        String playerName = event.getPlayer().getName();
+        int playerCount = event.getPlayer().getServer().getOnlinePlayers().size();
 
-    public void updateScoreboard() {
-        int onlineCount = Bukkit.getOnlinePlayers().size();
-        int aliveCount = reviveHandler.getAliveCount();
-        int deadCount = onlineCount - aliveCount;
+        Component joinMessage = Component.text()
+                .append(Component.text(playerName, NamedTextColor.LIGHT_PURPLE))
+                .append(Component.text(" joined the server (", NamedTextColor.GRAY))
+                .append(Component.text(playerCount, NamedTextColor.LIGHT_PURPLE))
+                .append(Component.text(")", NamedTextColor.GRAY))
+                .build();
 
-        List<String> lines = scoreboardConfig.getStringList("lines");
-
-        for (int i = 0; i < lines.size(); i++) {
-            String line = lines.get(i);
-            line = line.replace("%online%", String.valueOf(onlineCount))
-                .replace("%alive%", String.valueOf(aliveCount))
-                .replace("%dead%", String.valueOf(deadCount));
-            lines.set(i, line);
-        }
-
-        scoreboardConfig.set("lines", lines);
-        try {
-            scoreboardConfig.save(scoreboardFile);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        event.joinMessage(joinMessage);
     }
 
     @EventHandler
-    public void onJoin(Player player) {
-        updateScoreboard();
-    }
+    public void onPlayerQuit(PlayerQuitEvent event) {
 
-    @EventHandler
-    public void onQuit(Player player) {
-        updateScoreboard();
+        String playerName = event.getPlayer().getName();
+        int playerCount = event.getPlayer().getServer().getOnlinePlayers().size();
+
+        Component quitMessage = Component.text()
+                .append(Component.text(playerName, NamedTextColor.LIGHT_PURPLE))
+                .append(Component.text(" left the server (", NamedTextColor.GRAY))
+                .append(Component.text(playerCount, NamedTextColor.LIGHT_PURPLE))
+                .append(Component.text(")", NamedTextColor.GRAY))
+                .build();
+
+        event.quitMessage(quitMessage);
     }
 }

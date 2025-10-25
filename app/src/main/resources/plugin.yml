@@ -1,6 +1,6 @@
 name: AutismCore
 main: org.notleksa.autismcore.AutismCore
-version: 0.7.0
+version: 0.7.1
 api-version: 1.21
 description: autism core real
 author: NotLeksa
@@ -83,14 +83,17 @@ commands:
   event:
     description: Event control commands
     usage: /event <msg|timer>
+    permission: autismcore.event
   tpalive:
     description: Teleports all alive players to you
     usage: /tpalive
     aliases: [teleportalive]
+    permission: autismcore.tpalivedead
   tpdead:
     description: Teleports all dead players to you
     usage: /tpdead
     aliases: [teleportdead]
+    permission: autismcore.tpalivedead
 
 permissions:
   autismcore.chatbypass:
@@ -130,4 +133,10 @@ permissions:
     default: op
   autismcore.scoreboard.toggle:
     description: Allows the user to use /scoreboard toggle
+    default: op
+  autismcore.event:
+    description: Allows the user to use /event commands
+    default: op
+  autismcore.tpalivedead:
+    description: Allows the user to use /event commands
     default: op

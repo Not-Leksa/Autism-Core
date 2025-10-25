@@ -13,11 +13,18 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 
+
 public class ReviveHandler implements Listener {
 
     private final Map<UUID, Boolean> aliveStatus = new HashMap<>();
     private final Map<UUID, Integer> reviveTokens = new HashMap<>();
     private final Set<UUID> pendingReviveRequests = new HashSet<>();
+
+    private final ServerDataHandler dataHandler;
+
+    public ReviveHandler(ServerDataHandler dataHandler) {
+        this.dataHandler = dataHandler;
+    }
 
     // alive dead handling
 
@@ -70,17 +77,28 @@ public class ReviveHandler implements Listener {
     // rev tokens
 
     public int getReviveTokens(Player player) {
+        if (!reviveTokens.containsKey(player.getUniqueId())) {
+            // load from data.yml
+            int stored = dataHandler.getReviveTokens(player);
+            reviveTokens.put(player.getUniqueId(), stored);
+        }
         return reviveTokens.getOrDefault(player.getUniqueId(), 0);
     }
 
+
     public void addReviveTokens(Player player, int amount) {
-        reviveTokens.put(player.getUniqueId(), getReviveTokens(player) + amount);
+        int newAmount = getReviveTokens(player) + amount;
+        reviveTokens.put(player.getUniqueId(), newAmount);
+        dataHandler.setReviveTokens(player, amount); // logs it to data.yml
     }
 
     public boolean useReviveToken(Player player) {
         int current = getReviveTokens(player);
         if (current <= 0) return false;
-        reviveTokens.put(player.getUniqueId(), current - 1);
+
+        int newAmount = current - 1;
+        reviveTokens.put(player.getUniqueId(), newAmount);
+        dataHandler.setReviveTokens(player, newAmount);
         return true;
     }
 

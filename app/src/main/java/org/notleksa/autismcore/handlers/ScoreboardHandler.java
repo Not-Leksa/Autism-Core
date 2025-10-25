@@ -123,11 +123,7 @@ public class ScoreboardHandler implements Listener {
     private void updateLines(Player player, Scoreboard board, Objective obj) {
         board.getEntries().forEach(board::resetScores);
 
-        List<String> lines = scoreboardConfig.getStringList("lines");
-        if (lines == null || lines.isEmpty()) {
-            plugin.getLogger().warning("No lines configured in scoreboard.yml");
-            return;
-        }
+        List<String> lines = List.copyOf(scoreboardConfig.getStringList("lines")); // <- immutable copy
 
         int score = lines.size();
         for (String raw : lines) {
