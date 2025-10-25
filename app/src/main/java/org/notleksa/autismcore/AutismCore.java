@@ -98,7 +98,7 @@ public final class AutismCore extends JavaPlugin implements Listener {
 
         // rat
         try {
-            File imageFile = new File(getDataFolder(), "rat.jpg");
+            File imageFile = new File(getDataFolder(), "rat (1).jpg");
     
             String imageUrl = "https://raw.githubusercontent.com/Not-Leksa/Autism-Core/master/rat.jpg";
 
