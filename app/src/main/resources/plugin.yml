@@ -1,6 +1,6 @@
 name: AutismCore
 main: org.notleksa.autismcore.AutismCore
-version: 0.7.1
+version: 1.0.0
 api-version: 1.21
 description: autism core real
 author: NotLeksa
@@ -34,7 +34,7 @@ commands:
     permission: autismcore.invsee
   revive:
     description: Revives a player
-    usage: /invsee <player>
+    usage: /revive <player>
     permission: autismcore.revive
     aliases: [rev]
   list:
@@ -94,6 +94,26 @@ commands:
     usage: /tpdead
     aliases: [teleportdead]
     permission: autismcore.tpalivedead
+  unrevive:
+    description: Unrevives a player
+    usage: /unrevive <player>
+    permission: autismcore.revive
+    aliases: [unrev]
+  revival:
+    description: Starts a revival
+    usage: /revival <winners> "<question>" "<answer>"
+    permission: autismcore.revival
+  warp:
+    description: Teleports to a warp
+    usage: /warp <warp name>"
+  setwarp:
+    description: Creates a warp
+    usage: /setwarp <warp name>"
+    permission: autismcore.setwarp
+  listwarps:
+    description: Lists all warps in chat
+    usage: /listwarps"
+
 
 permissions:
   autismcore.chatbypass:
@@ -138,5 +158,11 @@ permissions:
     description: Allows the user to use /event commands
     default: op
   autismcore.tpalivedead:
-    description: Allows the user to use /event commands
+    description: Allows the user to use /tpalive and /tpdead
+    default: op
+  autismcore.revival:
+    description: Allows the user to use /revival
+    default: op
+  autismcore.setwarp:
+    description: Allows the user to use /setwarp
     default: op

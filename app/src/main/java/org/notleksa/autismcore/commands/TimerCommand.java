@@ -15,7 +15,7 @@ import net.kyori.adventure.text.format.NamedTextColor;
 public class TimerCommand implements CommandExecutor {
 
     private final AutismCore plugin;
-    private BukkitRunnable activeTimer; // Track current timer
+    private BukkitRunnable activeTimer; // track current timer
 
     public TimerCommand(AutismCore plugin) {
         this.plugin = plugin;

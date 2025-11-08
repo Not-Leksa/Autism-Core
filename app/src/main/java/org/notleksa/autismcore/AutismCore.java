@@ -1,6 +1,6 @@
 package org.notleksa.autismcore;
 
-// TODO: chat revs, maybe other shit
+// TODO: chat revs, sudo, warps
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -25,13 +25,15 @@ import org.notleksa.autismcore.commands.ListCommand;
 import org.notleksa.autismcore.commands.MessageCommands;
 import org.notleksa.autismcore.commands.MuteChatCommand;
 import org.notleksa.autismcore.commands.RevTokenCommands;
-import org.notleksa.autismcore.commands.ReviveCommand;
+import org.notleksa.autismcore.commands.ReviveCommands;
+import org.notleksa.autismcore.commands.RevivalCommands;
 import org.notleksa.autismcore.commands.ScoreboardCommand;
 import org.notleksa.autismcore.commands.SetCooldownCommand;
 import org.notleksa.autismcore.commands.SetSpawnCommand;
 import org.notleksa.autismcore.commands.SpawnCommand;
 import org.notleksa.autismcore.commands.TeleportCommands;
 import org.notleksa.autismcore.commands.TimerCommand;
+import org.notleksa.autismcore.commands.WarpCommands;
 import org.notleksa.autismcore.handlers.CooldownHandler;
 import org.notleksa.autismcore.handlers.MuteChatHandler;
 import org.notleksa.autismcore.handlers.ReviveHandler;
@@ -47,7 +49,7 @@ public final class AutismCore extends JavaPlugin implements Listener {
 
     // core info shit
     public static final String CORE_ICON = "☘";
-    public static final String VERSION = "0.7.1";
+    public static final String VERSION = "1.0.0";
     public static final String DISCORD_LINK = "https://discord.gg/GrSeG3jR";
 
     // command variables
@@ -98,7 +100,7 @@ public final class AutismCore extends JavaPlugin implements Listener {
 
         // rat
         try {
-            File imageFile = new File(getDataFolder(), "rat (1).jpg");
+            File imageFile = new File(getDataFolder(), "rat.jpg");
     
             String imageUrl = "https://raw.githubusercontent.com/Not-Leksa/Autism-Core/master/rat.jpg";
 
@@ -142,8 +144,10 @@ public final class AutismCore extends JavaPlugin implements Listener {
         this.getCommand("event").setExecutor(new EventCommands(this, scoreboardHandler));
 
         // Revive commands
-        this.getCommand("revive").setExecutor(new ReviveCommand(this));
+        this.getCommand("revive").setExecutor(new ReviveCommands(this));
+        this.getCommand("unrevive").setExecutor(new ReviveCommands(this));
         this.getCommand("list").setExecutor(new ListCommand(this, reviveHandler));
+        this.getCommand("revival").setExecutor(new RevivalCommands(this));
 
         RevTokenCommands reviveCommands = new RevTokenCommands(this, reviveHandler, cooldownHandler);
         this.getCommand("userevive").setExecutor(reviveCommands);
@@ -166,6 +170,11 @@ public final class AutismCore extends JavaPlugin implements Listener {
         this.getCommand("r").setExecutor(messageCommands);
         this.getCommand("msgtoggle").setExecutor(messageCommands);
         this.getCommand("msgblock").setExecutor(messageCommands);
+
+        // warp commands
+        this.getCommand("warp").setExecutor(new WarpCommands(this));
+        this.getCommand("setwarp").setExecutor(new WarpCommands(this));
+        this.getCommand("listwarps").setExecutor(new WarpCommands(this));
     }
 
     @Override
@@ -175,7 +184,6 @@ public final class AutismCore extends JavaPlugin implements Listener {
             dataHandler.saveAll();
         }
     }
-    
 
     public ReviveHandler getReviveHandler() {
         return reviveHandler;

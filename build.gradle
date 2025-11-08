@@ -3,7 +3,7 @@
 // what the fuck
 
 plugins {
-    // no plugins here — subprojects handle their own
+    
 }
 
 allprojects {

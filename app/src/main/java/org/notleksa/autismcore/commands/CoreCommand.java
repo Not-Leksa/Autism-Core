@@ -8,6 +8,7 @@ import org.notleksa.autismcore.AutismCore;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.TextDecoration;
 
 public class CoreCommand implements CommandExecutor {
@@ -27,12 +28,16 @@ public class CoreCommand implements CommandExecutor {
             first = false;
         }
 
+        Component githubLink = Component.text("https://github.com/Not-Leksa/Autism-Core/", NamedTextColor.AQUA)
+                .clickEvent(ClickEvent.openUrl("https://github.com/Not-Leksa/Autism-Core/"));
+
         Component message = Component.text(AutismCore.CORE_ICON + " ", NamedTextColor.LIGHT_PURPLE)
                 .append(Component.text("AutismCore ", NamedTextColor.LIGHT_PURPLE).decorate(TextDecoration.BOLD))
                 .append(Component.text("v" + AutismCore.VERSION, NamedTextColor.YELLOW))
                 .append(Component.text("\nAuthors: ", NamedTextColor.GREEN))
                 .append(authorsComponent)
-                .append(Component.text("\nSpecial Thanks: pkpro, Railo_Sushi", NamedTextColor.RED));
+                .append(Component.text("\nSpecial Thanks: pkpro, Railo_Sushi", NamedTextColor.RED))
+                .append(Component.text("\n").append(githubLink));
                 //.append(Component.text("\nSupport | Discord: ", NamedTextColor.BLUE))
                 //.append(Component.text(AutismCore.DISCORD_LINK, NamedTextColor.BLUE).decorate(TextDecoration.UNDERLINED));
 
