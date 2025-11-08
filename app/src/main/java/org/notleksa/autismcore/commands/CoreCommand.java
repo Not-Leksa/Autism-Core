@@ -37,7 +37,7 @@ public class CoreCommand implements CommandExecutor {
                 .append(Component.text("\nAuthors: ", NamedTextColor.GREEN))
                 .append(authorsComponent)
                 .append(Component.text("\nSpecial Thanks: pkpro, Railo_Sushi", NamedTextColor.RED))
-                .append(Component.text("\n").append(githubLink));
+                .append(Component.text("\n").append(githubLink).decorate(TextDecoration.UNDERLINED));
                 //.append(Component.text("\nSupport | Discord: ", NamedTextColor.BLUE))
                 //.append(Component.text(AutismCore.DISCORD_LINK, NamedTextColor.BLUE).decorate(TextDecoration.UNDERLINED));
 

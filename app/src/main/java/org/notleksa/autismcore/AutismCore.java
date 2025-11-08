@@ -25,8 +25,8 @@ import org.notleksa.autismcore.commands.ListCommand;
 import org.notleksa.autismcore.commands.MessageCommands;
 import org.notleksa.autismcore.commands.MuteChatCommand;
 import org.notleksa.autismcore.commands.RevTokenCommands;
-import org.notleksa.autismcore.commands.ReviveCommands;
 import org.notleksa.autismcore.commands.RevivalCommands;
+import org.notleksa.autismcore.commands.ReviveCommands;
 import org.notleksa.autismcore.commands.ScoreboardCommand;
 import org.notleksa.autismcore.commands.SetCooldownCommand;
 import org.notleksa.autismcore.commands.SetSpawnCommand;
@@ -49,7 +49,7 @@ public final class AutismCore extends JavaPlugin implements Listener {
 
     // core info shit
     public static final String CORE_ICON = "☘";
-    public static final String VERSION = "1.0.0";
+    public static final String VERSION = "1.0.1";
     public static final String DISCORD_LINK = "https://discord.gg/GrSeG3jR";
 
     // command variables
@@ -159,10 +159,7 @@ public final class AutismCore extends JavaPlugin implements Listener {
         getCommand("tpalive").setExecutor(new TeleportCommands(this));
         getCommand("tpdead").setExecutor(new TeleportCommands(this));
 
-
-
         this.getCommand("setcooldown").setExecutor(new SetCooldownCommand(this, cooldownHandler));
-        
 
         // Message commands
         MessageCommands messageCommands = new MessageCommands();
