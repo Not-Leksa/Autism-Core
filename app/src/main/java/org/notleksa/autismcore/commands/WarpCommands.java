@@ -1,7 +1,11 @@
 package org.notleksa.autismcore.commands;
 
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
@@ -14,11 +18,8 @@ import org.bukkit.entity.Player;
 import org.notleksa.autismcore.AutismCore;
 import org.notleksa.autismcore.handlers.ReviveHandler;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 
 public class WarpCommands implements CommandExecutor {
 
@@ -199,6 +200,44 @@ public class WarpCommands implements CommandExecutor {
                 
                 return true;
             }
+
+            case "removewarp" -> {
+
+            if (!player.hasPermission("autismcore.setwarp")) {
+                player.sendMessage(Component.text("you dont have perms idiot", NamedTextColor.RED));
+                return true;
+            }
+
+            if (args.length != 1) {
+                player.sendMessage(Component.text("Usage: /removewarp <warp name>", NamedTextColor.RED));
+                return true;
+            }
+
+            String warpName = args[0].toLowerCase();
+
+            warpsConfig = YamlConfiguration.loadConfiguration(warpsFile);
+
+            if (warpsConfig.getConfigurationSection("warps") == null ||
+                !warpsConfig.getConfigurationSection("warps").getKeys(false).contains(warpName)) {
+
+                player.sendMessage(Component.text("Warp '" + warpName + "' does not exist.", NamedTextColor.RED));
+                return true;
+            }
+
+            warpsConfig.set("warps." + warpName, null);
+
+            try {
+                warpsConfig.save(warpsFile);
+            } catch (IOException e) {
+                player.sendMessage(Component.text("Error saving warps.yml!", NamedTextColor.RED));
+                e.printStackTrace();
+                return true;
+            }
+
+            player.sendMessage(Component.text("Warp '" + warpName + "' has been removed.", NamedTextColor.GREEN));
+            return true;
+        }
+
 
         }
 
