@@ -1,5 +1,8 @@
 # AutismCore
 
+![autismcorelogo](https://github.com/user-attachments/assets/6cf24c68-64be-4f0e-9afa-f1984c99a312)
+very cool logo
+
 ## Features
 
 - faster gamemode commands
