@@ -5,9 +5,12 @@ package org.notleksa.autismcore;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Scanner;
 
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -34,11 +37,14 @@ import org.notleksa.autismcore.commands.SpawnCommand;
 import org.notleksa.autismcore.commands.TeleportCommands;
 import org.notleksa.autismcore.commands.TimerCommand;
 import org.notleksa.autismcore.commands.WarpCommands;
+import org.notleksa.autismcore.commands.MarkovCommand;
+import org.notleksa.autismcore.handlers.ChatListener;
 import org.notleksa.autismcore.handlers.CooldownHandler;
 import org.notleksa.autismcore.handlers.MuteChatHandler;
 import org.notleksa.autismcore.handlers.ReviveHandler;
 import org.notleksa.autismcore.handlers.ScoreboardHandler;
 import org.notleksa.autismcore.handlers.ServerDataHandler;
+import org.notleksa.autismcore.markov.MarkovChain;
 import org.notleksa.autismcore.rat.Rat;
 
 import net.kyori.adventure.text.Component;
@@ -49,7 +55,7 @@ public final class AutismCore extends JavaPlugin implements Listener {
 
     // core info shit
     public static final String CORE_ICON = "☘";
-    public static final String VERSION = "1.1.0";
+    public static final String VERSION = "1.2.0";
     public static final String DISCORD_LINK = "https://discord.gg/GrSeG3jR";
 
     // command variables
@@ -60,7 +66,7 @@ public final class AutismCore extends JavaPlugin implements Listener {
     private ServerDataHandler dataHandler;
     private CooldownHandler cooldownHandler;
     private Rat rat;
-
+    private MarkovChain markov;
 
     // scoreboard because APPARENTLY ScoreboardHandler can not fucking handle the scoreboard who the fuck wrote this shit
     private File scoreboardFile;
@@ -69,6 +75,12 @@ public final class AutismCore extends JavaPlugin implements Listener {
     // /core authors thingy
     public static final Map<String, TextColor> AUTHORS = new LinkedHashMap<>() {{
         put("NotLeksa", NamedTextColor.LIGHT_PURPLE);
+    }};
+
+    public static final Map<String, TextColor> SPECIAL_THANKS = new LinkedHashMap<>() {{
+        put("Railo_Sushi", NamedTextColor.GREEN);
+        put("pkpro", NamedTextColor.RED);
+        put("not celestixl", NamedTextColor.DARK_PURPLE);
     }};
 
     @Override
@@ -95,8 +107,6 @@ public final class AutismCore extends JavaPlugin implements Listener {
         for (Player player : Bukkit.getOnlinePlayers()) {
             scoreboardHandler.showScoreboard(player);
         }
-
-        handleCommands();
 
         // rat
         try {
@@ -129,6 +139,20 @@ public final class AutismCore extends JavaPlugin implements Listener {
             getLogger().severe("Failed to load or render ASCII logo: " + e.getMessage());
             e.printStackTrace();
         }
+
+        // markov
+        markov = new MarkovChain(2);
+        String training = readResource("markov.txt");
+        if (!training.isEmpty()) {
+            markov.train(training);
+            getLogger().info("Markov trained, token count approx: " + training.split("\\s+").length);
+        } else {
+            getLogger().warning("No training data found (markov.txt).");
+        }
+
+        getServer().getPluginManager().registerEvents(new ChatListener(markov), this);
+
+        handleCommands();
     }
 
     private void handleCommands() {
@@ -173,6 +197,8 @@ public final class AutismCore extends JavaPlugin implements Listener {
         this.getCommand("setwarp").setExecutor(new WarpCommands(this));
         this.getCommand("removewarp").setExecutor(new WarpCommands(this));
         this.getCommand("listwarps").setExecutor(new WarpCommands(this));
+
+        this.getCommand("markov").setExecutor(new MarkovCommand(this.markov));
     }
 
     @Override
@@ -214,8 +240,20 @@ public final class AutismCore extends JavaPlugin implements Listener {
             getLogger().info("Scoreboard disabled — hiding from all players.");
             scoreboardHandler.hideAll();
         }
+    }
 
-    
+    private String readResource(String name) {
+        try (InputStream in = getResource(name)) {
+            if (in == null) return "";
+            // Using Scanner for small files is fine
+            try (Scanner sc = new Scanner(in, StandardCharsets.UTF_8.name())) {
+                sc.useDelimiter("\\A");
+                return sc.hasNext() ? sc.next() : "";
+            }
+        } catch (Exception e) {
+            getLogger().severe("Failed to read resource " + name + ": " + e.getMessage());
+            return "";
+        }
     }
 
     // update %alive% and %dead% for scoreboard

@@ -7,8 +7,8 @@ import org.bukkit.entity.Player;
 import org.notleksa.autismcore.AutismCore;
 
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 
 public class CoreCommand implements CommandExecutor {
@@ -27,6 +27,13 @@ public class CoreCommand implements CommandExecutor {
             authorsComponent = authorsComponent.append(Component.text(entry.getKey(), entry.getValue()));
             first = false;
         }
+        Component specialThanksComponent = Component.empty();
+        boolean first2 = true;
+        for (var entry : AutismCore.SPECIAL_THANKS.entrySet()) {
+            if (!first) specialThanksComponent = specialThanksComponent.append(Component.text(", "));
+            specialThanksComponent = specialThanksComponent.append(Component.text(entry.getKey(), entry.getValue()));
+            first2 = false;
+        }
 
         Component githubLink = Component.text("https://github.com/Not-Leksa/Autism-Core/", NamedTextColor.AQUA)
                 .clickEvent(ClickEvent.openUrl("https://github.com/Not-Leksa/Autism-Core/"));
@@ -36,7 +43,8 @@ public class CoreCommand implements CommandExecutor {
                 .append(Component.text("v" + AutismCore.VERSION, NamedTextColor.YELLOW))
                 .append(Component.text("\nAuthors: ", NamedTextColor.GREEN))
                 .append(authorsComponent)
-                .append(Component.text("\nSpecial Thanks: pkpro, Railo_Sushi", NamedTextColor.RED))
+                .append(Component.text("\nSpecial Thanks: ", NamedTextColor.RED))
+                .append(specialThanksComponent)
                 .append(Component.text("\n").append(githubLink).decorate(TextDecoration.UNDERLINED));
                 //.append(Component.text("\nSupport | Discord: ", NamedTextColor.BLUE))
                 //.append(Component.text(AutismCore.DISCORD_LINK, NamedTextColor.BLUE).decorate(TextDecoration.UNDERLINED));
