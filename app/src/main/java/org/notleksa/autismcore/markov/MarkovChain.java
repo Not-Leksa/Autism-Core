@@ -1,39 +1,47 @@
 package org.notleksa.autismcore.markov;
 
+import java.io.*;
+import java.nio.file.*;
 import java.util.*;
 
 public class MarkovChain {
 
     private final int order;
     private final Random random = new Random();
-    private final Map<String, List<String>> chain = new HashMap<>();
     private static final String DELIM = "\u0001";
+    private static final String FILE_NAME = "markov.txt";
 
     public MarkovChain(int order) {
         if (order < 1) throw new IllegalArgumentException("Order must be >= 1");
         this.order = order;
     }
 
-    // these comments were too smart im removing them fr
+    /** Append a single message to the markov.txt file */
     public void train(String text) {
-        String[] tokens = text.split("\\s+");
-        if (tokens.length <= order) return;
-
-        for (int i = 0; i + order < tokens.length; i++) {
-
-            // combine [i .. i+order-1] into a single key
-            StringBuilder keyBuilder = new StringBuilder(tokens[i]);
-            for (int j = 1; j < order; j++) {
-                keyBuilder.append(DELIM).append(tokens[i + j]);
-            }
-            String key = keyBuilder.toString();
-
-            String nextWord = tokens[i + order];
-            chain.computeIfAbsent(key, k -> new ArrayList<>()).add(nextWord);
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_NAME, true))) {
+            writer.write(text);
+            writer.newLine();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
     public String generate(int words) {
+        Map<String, List<String>> chain = new HashMap<>();
+
+        Path path = Paths.get(FILE_NAME);
+        if (!Files.exists(path)) return "";
+
+        try (BufferedReader reader = Files.newBufferedReader(path)) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                buildChain(line, chain);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "";
+        }
+
         if (chain.isEmpty()) return "";
 
         List<String> keys = new ArrayList<>(chain.keySet());
@@ -64,5 +72,21 @@ public class MarkovChain {
         }
 
         return out.toString();
+    }
+
+    private void buildChain(String text, Map<String, List<String>> chain) {
+        String[] tokens = text.split("\\s+");
+        if (tokens.length <= order) return;
+
+        for (int i = 0; i + order < tokens.length; i++) {
+            StringBuilder keyBuilder = new StringBuilder(tokens[i]);
+            for (int j = 1; j < order; j++) {
+                keyBuilder.append(DELIM).append(tokens[i + j]);
+            }
+            String key = keyBuilder.toString();
+            String nextWord = tokens[i + order];
+
+            chain.computeIfAbsent(key, k -> new ArrayList<>()).add(nextWord);
+        }
     }
 }

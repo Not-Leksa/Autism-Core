@@ -56,7 +56,7 @@ public final class AutismCore extends JavaPlugin implements Listener {
 
     // core info shit
     public static final String CORE_ICON = "☘";
-    public static final String VERSION = "1.2.0";
+    public static final String VERSION = "1.2.1";
     public static final String DISCORD_LINK = "https://discord.gg/GrSeG3jR";
 
     // command variables

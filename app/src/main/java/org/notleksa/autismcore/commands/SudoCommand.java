@@ -22,7 +22,7 @@ public class SudoCommand implements CommandExecutor {
         }
 
         if (args.length < 2) {
-            sender.sendMessage(Component.text("Usage: /sudo <player> <message>", NamedTextColor.RED));
+            sender.sendMessage(Component.text("Usage: /sudo <player> <message | /command>", NamedTextColor.RED));
             return true;
         }
 
@@ -33,25 +33,31 @@ public class SudoCommand implements CommandExecutor {
             return true;
         }
 
-        // for chat
-        if (args[1].equalsIgnoreCase("chat")) {
+        // Combine everything after player
+        String input = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
 
-            if (args.length < 3) {
-                sender.sendMessage(Component.text("Usage: /sudo <player> <message>", NamedTextColor.RED));
+        // If starts with "/", treat as command
+        if (input.startsWith("/")) {
+
+            String cmd = input.substring(1); 
+
+            String base = cmd.split(" ")[0].toLowerCase();
+            if (base.equals("op") || base.equals("deop")) {
+                sender.sendMessage("§cno");
                 return true;
             }
 
-            String message = String.join(" ", Arrays.copyOfRange(args, 2, args.length));
+            boolean success = Bukkit.dispatchCommand(target, cmd);
 
-            target.chat(message);
+            if (!success) {
+                sender.sendMessage(Component.text("That command does not exist or failed.", NamedTextColor.RED));
+                return true;
+            }
 
             return true;
         }
 
-        // for commands fr this prolly dont even work
-        String cmd = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
-
-        Bukkit.dispatchCommand(target, cmd);
+        target.chat(input);
 
         return true;
     }
