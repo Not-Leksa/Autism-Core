@@ -11,7 +11,7 @@ import javax.imageio.ImageIO;
 public class Rat {
 
     private static final String ASCII_CHARS =
-            "@#W$9876543210?!abc;:+=-,._";
+            "@#$9876543210?!abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ;:+=-,._";
 
     public static String convertToAscii(File file, int width) throws IOException {
         BufferedImage image = ImageIO.read(file);

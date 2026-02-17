@@ -14,9 +14,7 @@ public class MarkovChain {
         this.order = order;
     }
 
-    /**
-     * Train the Markov chain with plain text
-     */
+    // these comments were too smart im removing them fr
     public void train(String text) {
         String[] tokens = text.split("\\s+");
         if (tokens.length <= order) return;
@@ -35,9 +33,6 @@ public class MarkovChain {
         }
     }
 
-    /**
-     * Generate text with N output words
-     */
     public String generate(int words) {
         if (chain.isEmpty()) return "";
 

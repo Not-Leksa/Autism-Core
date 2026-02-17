@@ -122,6 +122,10 @@ commands:
     description: make markov say something
     usage: /markov <length>
     permission: autismcore.markov
+  sudo:
+    description: make anybody say something
+    usage: /sudo <player> <message>
+    permission: autismcore.sudo
 
 
 permissions:
@@ -177,4 +181,7 @@ permissions:
     default: op
   autismcore.markov:
     description: Allows the user to use /markov
+    default: op
+  autismcore.sudo:
+    description: Allows the user to use /sudo
     default: op

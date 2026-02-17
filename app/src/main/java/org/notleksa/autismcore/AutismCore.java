@@ -1,6 +1,6 @@
 package org.notleksa.autismcore;
 
-// TODO: chat revs, sudo, warps
+// TODO: SUDO MAYBEEE
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -25,6 +25,7 @@ import org.notleksa.autismcore.commands.EventCommands;
 import org.notleksa.autismcore.commands.HideCommand;
 import org.notleksa.autismcore.commands.InvseeCommand;
 import org.notleksa.autismcore.commands.ListCommand;
+import org.notleksa.autismcore.commands.MarkovCommand;
 import org.notleksa.autismcore.commands.MessageCommands;
 import org.notleksa.autismcore.commands.MuteChatCommand;
 import org.notleksa.autismcore.commands.RevTokenCommands;
@@ -34,10 +35,10 @@ import org.notleksa.autismcore.commands.ScoreboardCommand;
 import org.notleksa.autismcore.commands.SetCooldownCommand;
 import org.notleksa.autismcore.commands.SetSpawnCommand;
 import org.notleksa.autismcore.commands.SpawnCommand;
+import org.notleksa.autismcore.commands.SudoCommand;
 import org.notleksa.autismcore.commands.TeleportCommands;
 import org.notleksa.autismcore.commands.TimerCommand;
 import org.notleksa.autismcore.commands.WarpCommands;
-import org.notleksa.autismcore.commands.MarkovCommand;
 import org.notleksa.autismcore.handlers.ChatListener;
 import org.notleksa.autismcore.handlers.CooldownHandler;
 import org.notleksa.autismcore.handlers.MuteChatHandler;
@@ -132,7 +133,7 @@ public final class AutismCore extends JavaPlugin implements Listener {
                 getLogger().info("logo downloaded successfully!");
             }
 
-            String asciiArt = rat.convertToAscii(imageFile, 80);
+            String asciiArt = rat.convertToAscii(imageFile, 96);
             getLogger().info("\n" + asciiArt);
 
         } catch (Exception e) {
@@ -166,6 +167,7 @@ public final class AutismCore extends JavaPlugin implements Listener {
         this.getCommand("timer").setExecutor(new TimerCommand(this));
         this.getCommand("scoreboard").setExecutor(new ScoreboardCommand(this, scoreboardHandler));
         this.getCommand("event").setExecutor(new EventCommands(this, scoreboardHandler));
+        this.getCommand("sudo").setExecutor(new SudoCommand());
 
         // Revive commands
         this.getCommand("revive").setExecutor(new ReviveCommands(this));
